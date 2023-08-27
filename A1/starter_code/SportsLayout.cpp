@@ -190,23 +190,21 @@ using namespace std;
         int min = 1;
 
         random_device rd;
-        // Seed the engine
+    
         static mt19937_64 generator(rd());
-        // mt19937_64 generator();
-
-        // Specify the range of numbers to generate, in this case [min, max]
+       
         uniform_int_distribution<int> dist{min, l};
 
-        // Create a set to hold the random numbers
-        set<int> results;
+        
+        set<int> temp;
 
-        // Generate the random numbers
-        while(results.size() != z)
+        
+        while(temp.size() != z)
         {
-            results.insert(dist(generator));
+            temp.insert(dist(generator));
         }
 
-        vector<int> random_state(results.begin(),results.end());
+        vector<int> random_state(temp.begin(),temp.end());
         random_shuffle(random_state.begin(),random_state.end());
 
         cout<<"-----Random restart called-----"<<"\n";
