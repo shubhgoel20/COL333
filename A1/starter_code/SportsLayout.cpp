@@ -357,7 +357,9 @@ using namespace std;
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
                 return ans;
             }
-            if(get_prob() <= prob){
+            double check = get_prob();
+            cout<<check<<"\n";
+            if(check <= prob){
                 auto neigh_val = get_random_neighour(current);
                 current = neigh_val.first;
                 current_cost = neigh_val.second;
