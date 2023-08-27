@@ -264,6 +264,43 @@ using namespace std;
         return {neighbour,min_cost};
     }
 
+    pair<vector<int>,long long> SportsLayout::get_random_neighour(vector<int> &current){
+        static srand(static_cast<unsigned>(std::time(0)));
+        cout<<"-----Random walk initiated-----"<<"\n";
+        int neighbour_type = rand()%2;
+        vector<int> neighbour;
+        long long neighbour_cost;
+        if(neighbour_type == 0){
+            int i = rand()%z;
+            int j = rand()%z;
+            while(j == i){
+                j = rand()%z;
+            }
+            swap(current[i],current[j]);
+            neighbour = current;
+            neighbour_cost = cost_fn(neighbour);
+            swap(current[i],current[j]);
+        }
+        else{
+            vector<bool> used(z+1);
+            for(auto &ele : current){
+                used[ele] = 1;
+            }
+            vector<int> not_used;
+            for(int i = 1;i<=l;i++){
+                if(!used[i]){
+                    not_used.push_back(i);
+                }
+            }
+            int i = rand()%z;
+            int j = rand()%(not_used.size());
+            neighbour = current;
+            neighbour[i] = not_used[j];
+            neighbour_cost = cost_fn(neighbour);
+        }
+        return {neighbour,neighbour_cost};
+    }
+
     double SportsLayout::get_prob(){
         static srand(static_cast<unsigned>(std::time(0)));
         return ((double)rand())/RAND_MAX;
@@ -307,6 +344,48 @@ using namespace std;
         return current;
     }
 
+    vector<int> SportsLayout::hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point start_time){
+        auto current = get_random_state();
+        auto current_cost = cost_fn(current);
+        long long min_cost = current_cost;
+        auto ans = current;
+        while(true){
+            auto current_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+            if (elapsed_time.count() > (time*60*0.95))
+            {
+                std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                return ans;
+            }
+            if(get_prob() <= prob){
+                auto neigh_val = get_random_neighour(current);
+                current = neigh_val.first;
+                current_cost = neigh_val.second;
+            }
+            else{
+                cout<<"-----Taking greedy step-----"<<"\n";
+                auto neigh_val = get_neighbour(current);
+                if(neigh_val.second >= current_cost){
+                    if(current_cost < min_cost){
+                        min_cost = current_cost;
+                        ans = current;
+                    }
+                    
+                    cout<<"local optimum reached, return the current best allocation"<<"\n";
+                    return ans;
+                    
+                }
+                else{
+                    
+                    current = neigh_val.first;
+                    current_cost = neigh_val.second;
+                }
+            }
+            
+        }
+        return current;
+    }
+
     void SportsLayout::compute_allocation()
     {
         //you can write your code here 
@@ -315,8 +394,10 @@ using namespace std;
         // mapping[i]=i+1;
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        int max_restarts = 30;
-        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        // int max_restarts = 30;
+        // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        double prob = 0.3;
+        auto ans = hill_climbing_random_walks(prob,start_time);
         for(int i = 0;i<z;i++){
             mapping[i] = ans[i];
         }
