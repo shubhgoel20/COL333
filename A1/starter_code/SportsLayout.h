@@ -31,6 +31,8 @@ class SportsLayout{
 
     long long cost_fn_swap(vector<int> &state, long long curr_cost, int i, int j);
 
+    long long cost_fn_exchange(vector<int> &state, long long curr_cost, int i, int new_loc);
+
     void write_to_file(string outputfilename);
 
     void readInInputFile(string inputfilename);
