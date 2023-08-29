@@ -36,6 +36,7 @@ class SportsLayout{
 
     vector<int> hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point start_time);
     vector<int> hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point start_time);
+    vector<int> hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point start_time);
     pair<vector<int>,long long> get_neighbour(vector<int> &current);
     pair<vector<int>,long long> get_random_neighour(vector<int> &current);
     vector<int> get_random_state();
