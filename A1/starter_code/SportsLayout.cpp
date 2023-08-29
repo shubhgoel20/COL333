@@ -10,8 +10,8 @@ using namespace std;
     {
           
         readInInputFile(inputfilename);
-        mapping= new int[z];
-
+        mapping= vector<int>(z);
+        used = vector<int>(z);
     }
 
     bool SportsLayout::check_output_format()
@@ -41,43 +41,6 @@ using namespace std;
 
     }
 
-    // void SportsLayout::readOutputFile(string output_filename)
-    // {
-    //         fstream ipfile;
-	//         ipfile.open(output_filename, ios::in);
-    //         if (!ipfile) {
-    //             cout << "No such file\n";
-    //             exit( 0 );
-    //         }
-    //         else {
-                
-    //             vector<int> ip;
-
-    //             while (1) {
-    //                 int t;
-    //                 ipfile >> t;
-    //                 ip.push_back(t);
-    //                 if (ipfile.eof())
-    //                     break;
-                    
-    //             }
-            
-    //         if(ip.size()!=z)
-    //         {
-    //             cout<<"number of values not equal to number of zones, check output format\n";
-    //             exit(0);
-    //         }
-    //         for(int i=0;i<z;i++)
-    //         mapping[i]=ip[i];
-    //     ipfile.close();
-
-    //     if(!check_output_format())
-    //         exit(0);
-    //     cout<<"Read output file, format OK"<<endl;
-
-    //         }
-        
-    // }
 
 
     long long SportsLayout::cost_fn(){
@@ -109,6 +72,40 @@ using namespace std;
 
         return cost;
     }
+    long long SportsLayout::cost_fn_swap(vector<int> &state, long long curr_cost, int i, int j){
+        for(int k = 0;k<z;k++){
+            if(k == i || k == j) continue;
+            curr_cost+=((long long)N[k][i]*(long long)T[state[k] - 1][state[j] - 1] + (long long)N[k][j]*(long long)T[state[k] - 1][state[i] - 1]);
+            curr_cost-=((long long)N[k][i]*(long long)T[state[k] - 1][state[i] - 1] + (long long)N[k][j]*(long long)T[state[k] - 1][state[j] - 1]);
+        }
+
+        for(int k = 0;k<z;k++){
+            if(k != i){
+                curr_cost-= (long long)N[i][k]*(long long)T[state[i] - 1][state[k] - 1];
+                if(k != j) curr_cost+= (long long)N[i][k]*(long long)T[state[j] - 1][state[k] - 1];
+                else curr_cost+= (long long)N[i][k]*(long long)T[state[j] - 1][state[i] - 1];
+            }
+            if(k != j){
+                curr_cost-= (long long)N[j][k]*(long long)T[state[j] - 1][state[k] - 1];
+                if(k != i) curr_cost+= (long long)N[j][k]*(long long)T[state[i] - 1][state[k] - 1];
+                else curr_cost+= (long long)N[j][k]*(long long)T[state[i] - 1][state[j] - 1];
+            }
+            
+        }
+
+        return curr_cost;
+        // long long cost=0;
+
+        // for(int i=0;i<z;i++)
+        // {
+        //    for(int j=0;j<z;j++) 
+        //    {
+        //         cost+=(long long)N[i][j]*(long long)T[state[i]-1][state[j]-1];
+        //    }
+        // }
+
+        // return cost;
+    }
 
     void SportsLayout::readInInputFile(string inputfilename)
     {
@@ -134,17 +131,18 @@ using namespace std;
 
             
 
-            int **tempT;
-            int **tempN;
+        //     int **tempT;
+        //     int **tempN;
 
-          tempT = new int*[l];
-         for (int i = 0; i < l; ++i)
-            tempT[i] = new int[l];
+        //   tempT = new int*[l];
+        //  for (int i = 0; i < l; ++i)
+        //     tempT[i] = new int[l];
         
-        tempN = new int*[z];
-        for (int i = 0; i < z; ++i)
-            tempN[i] = new int[z];
-
+        // tempN = new int*[z];
+        // for (int i = 0; i < z; ++i)
+        //     tempN[i] = new int[z];
+        vector<vector<int>> tempT(l,vector<int>(l));
+        vector<vector<int>> tempN(z,vector<int>(z));
         for(int i=0;i<z;i++)
         {
             for(int j=0;j<z;j++)
@@ -161,7 +159,7 @@ using namespace std;
 
         T= tempT;
         N= tempN;
-            }
+         }
 
     }
 
@@ -216,53 +214,63 @@ using namespace std;
         return random_state;
     }
 
-    pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current){
+    pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost){
         vector<int> neighbour;
         long long min_cost = LLONG_MAX;
+        // long long curr_cost = cost_fn(current);
         //Swap function
         for(int i = 0;i<z;i++){
             for(int j = i+1;j<z;j++){
-                swap(current[i],current[j]);
-                long long temp = cost_fn(current);
+                // swap(current[i],current[j]);
+                long long temp = cost_fn_swap(current,curr_cost,i,j);
                 if(temp < min_cost){
                     min_cost = temp;
+                    swap(current[i],current[j]);
                     neighbour = current;
+                    swap(current[i],current[j]);
                 }
-                swap(current[i],current[j]);
+                
             }
         }
-
+        cout<<"First neighbourhood function executed"<<"\n";
         //neighbourhood function for unused locations.
         //Can add a condition to execute it if l - z is very small.
 
-        vector<bool> used(z+1);
-        for(auto &ele : current){
+        // vector<int> used;
+        // for(int i = 0;i<z;i++){
+        //     used.push_back(0);
+        // }
+        fill(used.begin(),used.end(),0);
+        for(auto ele : current){
             used[ele] = 1;
         }
-        vector<int> not_used;
+        not_used.clear();
         for(int i = 1;i<=l;i++){
             if(!used[i]){
                 not_used.push_back(i);
             }
         }
         
-        for(int i = 0;i<z;i++){
-            for(auto &ele: not_used){
-                int temp_ele = current[i];
-                current[i] = ele;
-                long long temp = cost_fn(current);
-                if(temp < min_cost){
-                    min_cost = temp;
-                    neighbour = current;
-                }
-                current[i] = temp_ele;
-            }
-        }
+        // for(int i = 0;i<z;i++){
+        //     for(auto &ele: not_used){
+        //         int temp_ele = current[i];
+        //         current[i] = ele;
+        //         long long temp = cost_fn(current);
+        //         if(temp < min_cost){
+        //             min_cost = temp;
+        //             neighbour = current;
+        //         }
+        //         current[i] = temp_ele;
+        //     }
+        // }
 
+        // neighbour = current;
+        // min_cost = cost_fn(current);
+        cout<<"Second neighbourhood function executed"<<"\n";
         return {neighbour,min_cost};
     }
 
-    pair<vector<int>,long long> SportsLayout::get_random_neighour(vector<int> &current){
+    pair<vector<int>,long long> SportsLayout::get_random_neighour(vector<int> &current, long long curr_cost){
         static srand(static_cast<unsigned>(std::time(0)));
         cout<<"-----Random walk initiated-----"<<"\n";
         int neighbour_type = rand()%2;
@@ -274,9 +282,10 @@ using namespace std;
             while(j == i){
                 j = rand()%z;
             }
+            
+            neighbour_cost = cost_fn_swap(current,curr_cost,i,j);
             swap(current[i],current[j]);
             neighbour = current;
-            neighbour_cost = cost_fn(neighbour);
             swap(current[i],current[j]);
         }
         else{
@@ -315,9 +324,12 @@ using namespace std;
             if (elapsed_time.count() > (time*60*0.95))
             {
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                cout<<"Time Taken: "<<elapsed_time.count()<<"\n";
                 return ans;
             }
-            auto neigh_val = get_neighbour(current);
+            
+            cout<<"-----Taking greedy step-----"<<"\n";
+            auto neigh_val = get_neighbour(current,current_cost);
             if(neigh_val.second >= current_cost){
                 if(current_cost < min_cost){
                     min_cost = current_cost;
@@ -358,13 +370,13 @@ using namespace std;
             double check = get_prob();
             cout<<check<<"\n";
             if(check <= prob){
-                auto neigh_val = get_random_neighour(current);
+                auto neigh_val = get_random_neighour(current, current_cost);
                 current = neigh_val.first;
                 current_cost = neigh_val.second;
             }
             else{
                 cout<<"-----Taking greedy step-----"<<"\n";
-                auto neigh_val = get_neighbour(current);
+                auto neigh_val = get_neighbour(current,current_cost);
                 if(neigh_val.second >= current_cost){
                     if(current_cost < min_cost){
                         min_cost = current_cost;
@@ -403,13 +415,13 @@ using namespace std;
             double check = get_prob();
             cout<<check<<"\n";
             if(check <= prob){
-                auto neigh_val = get_random_neighour(current);
+                auto neigh_val = get_random_neighour(current,current_cost);
                 current = neigh_val.first;
                 current_cost = neigh_val.second;
             }
             else{
                 cout<<"-----Taking greedy step-----"<<"\n";
-                auto neigh_val = get_neighbour(current);
+                auto neigh_val = get_neighbour(current,current_cost);
                 if(neigh_val.second >= current_cost){
                     if(current_cost < min_cost){
                         min_cost = current_cost;
@@ -447,8 +459,10 @@ using namespace std;
         auto start_time = std::chrono::high_resolution_clock::now();
         int max_restarts = 30;
         // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
-        double prob = 0.2;
-        auto ans = hill_climbing_random_walks_restarts(max_restarts, prob, start_time);
+        double prob = 0.3;
+        // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
+        // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
+        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
         for(int i = 0;i<z;i++){
             mapping[i] = ans[i];
         }
