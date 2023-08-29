@@ -174,6 +174,9 @@ using namespace std;
 
     void SportsLayout::write_to_file(string outputfilename){
 
+        bool correct = check_output_format();
+        if(!correct) return;
+
          // Open the file for writing
         ofstream outputFile(outputfilename);
 
@@ -195,38 +198,28 @@ using namespace std;
 
     vector<int> SportsLayout::get_random_state(){
         int min = 1;
-
         random_device rd;
-    
         static mt19937_64 generator(rd());
-       
         uniform_int_distribution<int> dist{min, l};
-
-        
         set<int> temp;
-
-        
         while(temp.size() != z)
         {
             temp.insert(dist(generator));
         }
-
         vector<int> random_state(temp.begin(),temp.end());
         random_shuffle(random_state.begin(),random_state.end());
-
         cout<<"-----Random restart called-----"<<"\n";
-        for(auto x: random_state){
-            cout<<x<<" ";
-        }
-        cout<<"\n";
-
+        // for(auto x: random_state){
+        //     cout<<x<<" ";
+        // }
+        // cout<<"\n";
         return random_state;
     }
 
     pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost){
         vector<int> neighbour;
         long long min_cost = LLONG_MAX;
-        // long long curr_cost = cost_fn(current);
+
         //Swap function
         for(int i = 0;i<z;i++){
             for(int j = i+1;j<z;j++){
@@ -241,14 +234,9 @@ using namespace std;
                 
             }
         }
-        cout<<"First neighbourhood function executed"<<"\n";
+        // cout<<"First neighbourhood function executed"<<"\n";
         //neighbourhood function for unused locations.
         //Can add a condition to execute it if l - z is very small.
-
-        // vector<int> used;
-        // for(int i = 0;i<z;i++){
-        //     used.push_back(0);
-        // }
         fill(used.begin(),used.end(),0);
         for(auto ele : current){
             used[ele] = 1;
@@ -275,9 +263,7 @@ using namespace std;
             }
         }
 
-        // neighbour = current;
-        // min_cost = cost_fn(current);
-        cout<<"Second neighbourhood function executed"<<"\n";
+        // cout<<"Second neighbourhood function executed"<<"\n";
         return {neighbour,min_cost};
     }
 
