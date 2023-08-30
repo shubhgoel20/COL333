@@ -221,17 +221,39 @@ using namespace std;
         long long min_cost = LLONG_MAX;
 
         //Swap function
-        for(int i = 0;i<z;i++){
-            for(int j = i+1;j<z;j++){
-                // swap(current[i],current[j]);
-                long long temp = cost_fn_swap(current,curr_cost,i,j);
-                if(temp < min_cost){
-                    min_cost = temp;
-                    swap(current[i],current[j]);
-                    neighbour = current;
-                    swap(current[i],current[j]);
+        if(z < 500){ //Heuristic, can be tuned O(z^3)
+            for(int i = 0;i<z;i++){
+                for(int j = i+1;j<z;j++){
+                    // swap(current[i],current[j]);
+                    long long temp = cost_fn_swap(current,curr_cost,i,j);
+                    if(temp < min_cost){
+                        min_cost = temp;
+                        swap(current[i],current[j]);
+                        neighbour = current;
+                        swap(current[i],current[j]);
+                    }
+                    
                 }
-                
+            }
+        }
+        else{ //O(z^2)
+            set<int> ind;
+            while(ind.size()*ind.size() < z){
+                ind.insert((rand()%z));
+            }
+            vector<int> indices(ind.begin(),ind.end());
+            for(int i = 0;i<indices.size();i++){
+                for(int j = i+1;j<indices.size();j++){
+                    // swap(current[i],current[j]);
+                    long long temp = cost_fn_swap(current,curr_cost,indices[i],indices[j]);
+                    if(temp < min_cost){
+                        min_cost = temp;
+                        swap(current[indices[i]],current[indices[j]]);
+                        neighbour = current;
+                        swap(current[indices[i]],current[indices[j]]);
+                    }
+                    
+                }
             }
         }
         // cout<<"First neighbourhood function executed"<<"\n";
@@ -247,9 +269,12 @@ using namespace std;
                 not_used.push_back(i);
             }
         }
+        random_shuffle(not_used.begin(),not_used.end());
+        int max_size = (l-z)*z*z > 1e8 ? min(100,(int)not_used.size()):not_used.size();
         
         for(int i = 0;i<z;i++){
-            for(auto &ele: not_used){
+            for(int j = 0;j<max_size;j++){
+                auto ele = not_used[j];
                 int temp_ele = current[i];
                 
                 long long temp = cost_fn_exchange(current,curr_cost,i,ele);
@@ -377,6 +402,10 @@ using namespace std;
             double check = get_prob();
             cout<<check<<"\n";
             if(check <= prob){
+                if(current_cost < min_cost){
+                    min_cost = current_cost;
+                    ans = current;
+                }
                 auto neigh_val = get_random_neighour(current, current_cost);
                 current = neigh_val.first;
                 current_cost = neigh_val.second;
@@ -427,6 +456,10 @@ using namespace std;
             double check = get_prob();
             cout<<check<<"\n";
             if(check <= prob){
+                if(current_cost < min_cost){
+                    min_cost = current_cost;
+                    ans = current;
+                }
                 auto neigh_val = get_random_neighour(current,current_cost);
                 current = neigh_val.first;
                 current_cost = neigh_val.second;
@@ -469,12 +502,12 @@ using namespace std;
         // mapping[i]=i+1;
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        int max_restarts = 30;
+        int max_restarts = 1000;
         // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
-        double prob = 0.3;
+        double prob = 0.2;
         // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
+        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
         for(int i = 0;i<z;i++){
             mapping[i] = ans[i];
         }
