@@ -12,6 +12,12 @@ using namespace std;
         readInInputFile(inputfilename);
         mapping= vector<int>(z);
         used = vector<int>(l+1);
+        tot_time = vector<long long>(l+1,0);
+        for(int i = 1;i<=l;i++){
+            for(int j = 1;j<l;j++){
+                tot_time[i]+=(long long)T[i-1][j-1];
+            }
+        }
     }
 
     bool SportsLayout::check_output_format()
@@ -216,14 +222,22 @@ using namespace std;
         return random_state;
     }
 
-    pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost){
-        vector<int> neighbour;
-        long long min_cost = LLONG_MAX;
+    pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point start_time){
+        vector<int> neighbour = current;
+        long long min_cost = curr_cost;
 
         //Swap function
         if(z < 500){ //Heuristic, can be tuned O(z^3)
+            // cout<<"here"<<"\n";
             for(int i = 0;i<z;i++){
                 for(int j = i+1;j<z;j++){
+                    auto current_time = std::chrono::high_resolution_clock::now();
+                    std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                    if (elapsed_time.count() > (time*60*0.99))
+                    {
+                        abbort = true;
+                        return {neighbour,min_cost};
+                    }
                     // swap(current[i],current[j]);
                     long long temp = cost_fn_swap(current,curr_cost,i,j);
                     if(temp < min_cost){
@@ -244,6 +258,13 @@ using namespace std;
             vector<int> indices(ind.begin(),ind.end());
             for(int i = 0;i<indices.size();i++){
                 for(int j = i+1;j<indices.size();j++){
+                    auto current_time = std::chrono::high_resolution_clock::now();
+                    std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                    if (elapsed_time.count() > (time*60*0.99))
+                    {
+                        abbort = true;
+                        return {neighbour,min_cost};
+                    }
                     // swap(current[i],current[j]);
                     long long temp = cost_fn_swap(current,curr_cost,indices[i],indices[j]);
                     if(temp < min_cost){
@@ -266,15 +287,24 @@ using namespace std;
         not_used.clear();
         for(int i = 1;i<=l;i++){
             if(!used[i]){
-                not_used.push_back(i);
+                not_used.push_back({tot_time[i],i});
             }
         }
-        random_shuffle(not_used.begin(),not_used.end());
+        // random_shuffle(not_used.begin(),not_used.end());
+        sort(not_used.begin(),not_used.end());
         int max_size = (l-z)*z*z > 1e8 ? min(100,(int)not_used.size()):not_used.size();
         
+
         for(int i = 0;i<z;i++){
             for(int j = 0;j<max_size;j++){
-                auto ele = not_used[j];
+                auto current_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                if (elapsed_time.count() > (time*60*0.99))
+                {
+                    abbort = true;
+                    return {neighbour,min_cost};
+                }
+                auto ele = not_used[j].second;
                 int temp_ele = current[i];
                 
                 long long temp = cost_fn_exchange(current,curr_cost,i,ele);
@@ -318,14 +348,14 @@ using namespace std;
             not_used.clear();
             for(int i = 1;i<=l;i++){
                 if(!used[i]){
-                    not_used.push_back(i);
+                    not_used.push_back({tot_time[i],i});
                 }
             }
             int i = rand()%z;
             int j = rand()%(not_used.size());
-            neighbour_cost = cost_fn_exchange(current,curr_cost,i,not_used[j]);
+            neighbour_cost = cost_fn_exchange(current,curr_cost,i,not_used[j].second);
             neighbour = current;
-            neighbour[i] = not_used[j];
+            neighbour[i] = not_used[j].second;
             
         }
         return {neighbour,neighbour_cost};
@@ -356,7 +386,18 @@ using namespace std;
             }
             
             cout<<"-----Taking greedy step-----"<<"\n";
-            auto neigh_val = get_neighbour(current,current_cost);
+            auto neigh_val = get_neighbour(current,current_cost,start_time);
+            if(abbort){
+                current_time = std::chrono::high_resolution_clock::now();
+                elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                if(neigh_val.second < min_cost){
+                    min_cost = neigh_val.second;
+                    ans = neigh_val.first;
+                }
+                return ans;
+            }
             if(neigh_val.second >= current_cost){
                 if(current_cost < min_cost){
                     min_cost = current_cost;
@@ -412,7 +453,18 @@ using namespace std;
             }
             else{
                 cout<<"-----Taking greedy step-----"<<"\n";
-                auto neigh_val = get_neighbour(current,current_cost);
+                auto neigh_val = get_neighbour(current,current_cost,start_time);
+                if(abbort){
+                    current_time = std::chrono::high_resolution_clock::now();
+                    elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                    std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                    cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                    if(neigh_val.second < min_cost){
+                        min_cost = neigh_val.second;
+                        ans = neigh_val.first;
+                    }
+                    return ans;
+                }
                 if(neigh_val.second >= current_cost){
                     if(current_cost < min_cost){
                         min_cost = current_cost;
@@ -466,7 +518,18 @@ using namespace std;
             }
             else{
                 cout<<"-----Taking greedy step-----"<<"\n";
-                auto neigh_val = get_neighbour(current,current_cost);
+                auto neigh_val = get_neighbour(current,current_cost,start_time);
+                if(abbort){
+                    current_time = std::chrono::high_resolution_clock::now();
+                    elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                    std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                    cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                    if(neigh_val.second < min_cost){
+                        min_cost = neigh_val.second;
+                        ans = neigh_val.first;
+                    }
+                    return ans;
+                }
                 if(neigh_val.second >= current_cost){
                     if(current_cost < min_cost){
                         min_cost = current_cost;
@@ -504,10 +567,10 @@ using namespace std;
         auto start_time = std::chrono::high_resolution_clock::now();
         int max_restarts = 1000;
         // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
-        double prob = 0.2;
+        double prob = 0.3;
         // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
+        // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
         for(int i = 0;i<z;i++){
             mapping[i] = ans[i];
         }

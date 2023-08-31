@@ -16,7 +16,9 @@ class SportsLayout{
     int time;
     vector<int> mapping;
     vector<int> used;
-    vector<int> not_used;
+    vector<pair<long long,int>> not_used;
+    vector<long long> tot_time;
+    bool abbort = false;
     public:
 
     SportsLayout(string inputfilename);
@@ -42,7 +44,7 @@ class SportsLayout{
     vector<int> hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point start_time);
     vector<int> hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point start_time);
     vector<int> hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point start_time);
-    pair<vector<int>,long long> get_neighbour(vector<int> &current, long long curr_cost);
+    pair<vector<int>,long long> get_neighbour(vector<int> &current, long long curr_cost,std::chrono::high_resolution_clock::time_point start_time);
     pair<vector<int>,long long> get_random_neighour(vector<int> &current, long long curr_cost);
     vector<int> get_random_state();
     double get_prob();
