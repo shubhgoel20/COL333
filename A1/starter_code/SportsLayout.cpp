@@ -223,6 +223,7 @@ using namespace std;
     }
 
     pair<vector<int>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point start_time){
+        static srand(static_cast<unsigned>(std::time(0)));
         vector<int> neighbour = current;
         long long min_cost = curr_cost;
 
@@ -251,11 +252,16 @@ using namespace std;
             }
         }
         else{ //O(z^2)
-            set<int> ind;
-            while(ind.size()*ind.size() < z){
-                ind.insert((rand()%z));
+            vector<int> indices;
+            vector<bool> mark(z,0);
+            while(indices.size()*indices.size() < z){
+                int idx = (rand()%z);
+                if(!mark[idx]){
+                    indices.push_back(idx);
+                    mark[idx] = 1;
+                }
             }
-            vector<int> indices(ind.begin(),ind.end());
+            // vector<int> indices(ind.begin(),ind.end());
             for(int i = 0;i<indices.size();i++){
                 for(int j = i+1;j<indices.size();j++){
                     auto current_time = std::chrono::high_resolution_clock::now();
@@ -292,7 +298,7 @@ using namespace std;
         }
         // random_shuffle(not_used.begin(),not_used.end());
         sort(not_used.begin(),not_used.end());
-        int max_size = (l-z)*z*z > 1e8 ? min(100,(int)not_used.size()):not_used.size();
+        int max_size = (l-z)*z*z > 1e7 ? min((int)(1e7/(z*z)),(int)not_used.size()):not_used.size();
         
 
         for(int i = 0;i<z;i++){
@@ -569,8 +575,8 @@ using namespace std;
         // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
         double prob = 0.3;
         // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
+        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
         for(int i = 0;i<z;i++){
             mapping[i] = ans[i];
         }
