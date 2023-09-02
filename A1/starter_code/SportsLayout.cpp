@@ -49,77 +49,50 @@ using namespace std;
 
 
 
-    long long SportsLayout::cost_fn(){
-
-
+    long long SportsLayout::cost_fn()
+    {
         long long cost=0;
-
         for(int i=0;i<z;i++)
         {
-           for(int j=0;j<z;j++) 
-           {
-                cost+=(long long)N[i][j]*(long long)T[mapping[i]-1][mapping[j]-1];
-           }
+           for(int j=(i+1);j<z;j++)
+            {
+                cost+=(long long)(N[i][j]+N[j][i])*T[mapping[i]-1][mapping[j]-1];
+            }
         }
-
         return cost;
     }
 
-    long long SportsLayout::cost_fn(vector<int> &state){
+    long long SportsLayout::cost_fn(vector<int> &state)
+    {
         long long cost=0;
-
         for(int i=0;i<z;i++)
         {
-           for(int j=0;j<z;j++) 
-           {
-                cost+=(long long)N[i][j]*(long long)T[state[i]-1][state[j]-1];
-           }
+            for(int j=(i+1);j<z;j++)
+            {
+                cost+=(long long)(N[i][j]+N[j][i])*T[state[i]-1][state[j]-1];
+            }
         }
-
         return cost;
     }
-    long long SportsLayout::cost_fn_swap(vector<int> &state, long long curr_cost, int i, int j){
-        for(int k = 0;k<z;k++){
+
+    long long SportsLayout::cost_fn_swap(vector<int> &state, long long curr_cost, int i, int j)
+    {
+        for(int k = 0;k<z;k++)
+        {
             if(k == i || k == j) continue;
-            curr_cost+=((long long)N[k][i]*(long long)T[state[k] - 1][state[j] - 1] + (long long)N[k][j]*(long long)T[state[k] - 1][state[i] - 1]);
-            curr_cost-=((long long)N[k][i]*(long long)T[state[k] - 1][state[i] - 1] + (long long)N[k][j]*(long long)T[state[k] - 1][state[j] - 1]);
+            curr_cost+=((long long)(N[k][i] + N[i][k] - N[j][k] - N[k][j]))*(T[state[k] - 1][state[j] - 1] - T[state[k] - 1][state[i] - 1]);
         }
-
-        for(int k = 0;k<z;k++){
-            if(k != i){
-                curr_cost-= (long long)N[i][k]*(long long)T[state[i] - 1][state[k] - 1];
-                if(k != j) curr_cost+= (long long)N[i][k]*(long long)T[state[j] - 1][state[k] - 1];
-                else curr_cost+= (long long)N[i][k]*(long long)T[state[j] - 1][state[i] - 1];
-            }
-            if(k != j){
-                curr_cost-= (long long)N[j][k]*(long long)T[state[j] - 1][state[k] - 1];
-                if(k != i) curr_cost+= (long long)N[j][k]*(long long)T[state[i] - 1][state[k] - 1];
-                else curr_cost+= (long long)N[j][k]*(long long)T[state[i] - 1][state[j] - 1];
-            }
-            
-        }
-
         return curr_cost;
-        
     }
 
-    long long SportsLayout::cost_fn_exchange(vector<int> &state, long long curr_cost, int i, int new_loc){
-        for(int k = 0;k<z;k++){
+    long long SportsLayout::cost_fn_exchange(vector<int> &state, long long curr_cost, int i, int new_loc)
+    {
+        for(int k = 0;k<z;k++)
+        {
             if(k == i) continue;
-            curr_cost+=((long long)N[k][i]*(long long)T[state[k] - 1][new_loc - 1]);
-            curr_cost-=((long long)N[k][i]*(long long)T[state[k] - 1][state[i] - 1]);
+            curr_cost+=((long long)(N[k][i] + N[i][k]))*(T[state[k] - 1][new_loc - 1] - T[state[k] - 1][state[i] - 1]);
         }
-
-        for(int k = 0;k<z;k++){
-            if(k != i){
-                curr_cost-= (long long)N[i][k]*(long long)T[state[i] - 1][state[k] - 1];
-                curr_cost+= (long long)N[i][k]*(long long)T[new_loc - 1][state[k] - 1];
-            }
-            
-        }
-
         return curr_cost;
-        
     }
 
     void SportsLayout::readInInputFile(string inputfilename)
