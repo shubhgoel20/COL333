@@ -571,15 +571,17 @@ using namespace std;
         // mapping[i]=i+1;
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        int max_restarts = 1000;
+        // int max_restarts = 1000;
         // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
-        double prob = 0.3;
+        // double prob = 0.3;
         // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
         // auto ans = hill_climbing_random_walks_restarts(max_restarts,prob, start_time);
-        auto ans = hill_climbing_random_restarts(max_restarts,start_time);
-        for(int i = 0;i<z;i++){
-            mapping[i] = ans[i];
-        }
+        // auto ans = hill_climbing_random_restarts(max_restarts,start_time);
+        // for(int i = 0;i<z;i++){
+        //     mapping[i] = ans[i];
+        // }
+        if(z < 500) mapping = hill_climbing_random_walks_restarts(1000,0.3,start_time);
+        else mapping = hill_climbing_random_walks_restarts(1000,0.1,start_time);
   
     }
 
