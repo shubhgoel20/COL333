@@ -703,7 +703,7 @@ using namespace std;
         //best results are coming for prob = 0.275, can tune more if required
         double prob1 = 0.275;
         double prob2 = 0.075;
-        std::srand(static_cast<unsigned>(std::time(0)));
+        // std::srand(static_cast<unsigned>(std::time(0)));
         mapping = hill_climbing_random_walks_restarts(100000,prob1,start_time);
     }
 
