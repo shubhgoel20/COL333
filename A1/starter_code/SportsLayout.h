@@ -16,7 +16,7 @@ class SportsLayout{
     vector<vector<long long>> Cswap;
     vector<vector<int>> symsumN;
     vector<vector<long long>> Cex;
-    int time;
+    float time;
     vector<int> mapping;
     vector<int> used;
     set<int> not_used;
@@ -57,7 +57,7 @@ class SportsLayout{
     void preprocessCswap(vector<int> &state);
     void updateCswap(int i, int j, vector<int> &state);
     void updateCex(int i, int new_loc, vector<int> &state);
-
+    bool is_unique(vector<int> &state);
 };
 
 
