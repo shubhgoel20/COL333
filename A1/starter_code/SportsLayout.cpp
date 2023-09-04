@@ -328,7 +328,7 @@ using namespace std;
     }
 
     pair<pair<int,pair<int,int>>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point start_time){
-        static srand(static_cast<unsigned>(std::time(0)));
+        // static srand(static_cast<unsigned>(std::time(0)));
         vector<int> neighbour = current;
         long long min_cost = curr_cost;
         int neighbour_type = 0;
@@ -392,7 +392,7 @@ using namespace std;
     }
 
     pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighour(vector<int> &current, long long curr_cost){
-        static srand(static_cast<unsigned>(std::time(0)));
+        // static srand(static_cast<unsigned>(std::time(0)));
         cout<<"-----Random walk initiated-----"<<"\n";
         int neighbour_type = rand()%2;
         vector<int> neighbour;
@@ -442,7 +442,7 @@ using namespace std;
     }
 
     double SportsLayout::get_prob(){
-        static srand(static_cast<unsigned>(std::time(0)));
+        // static srand(static_cast<unsigned>(std::time(0)));
         return ((double)rand())/RAND_MAX;
     }
 
@@ -696,11 +696,14 @@ using namespace std;
         // for(int i=0;i<z;i++)
         // mapping[i]=i+1;
 
+        
+
         auto start_time = std::chrono::high_resolution_clock::now();
         // vector<double> probs = {0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.325};
         //best results are coming for prob = 0.275, can tune more if required
         double prob1 = 0.275;
         double prob2 = 0.075;
+        std::srand(static_cast<unsigned>(std::time(0)));
         mapping = hill_climbing_random_walks_restarts(100000,prob1,start_time);
     }
 
