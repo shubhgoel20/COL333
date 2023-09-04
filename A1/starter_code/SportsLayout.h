@@ -16,7 +16,7 @@ class SportsLayout{
     vector<vector<long long>> Cswap;
     vector<vector<int>> symsumN;
     vector<vector<long long>> Cex;
-    float time;
+    double time;
     vector<int> mapping;
     vector<int> used;
     set<int> not_used;
