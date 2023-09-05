@@ -428,7 +428,7 @@ using namespace std;
         int neighbour_type = rand()%2;
         vector<int> neighbour;
         long long neighbour_cost;
-        cout<<neighbour_type<<"\n";
+        // cout<<neighbour_type<<"\n";
         if(neighbour_type == 0 || (z == l)){
             neighbour_type = 0;
             int i = rand()%z;
@@ -444,14 +444,14 @@ using namespace std;
         int i = rand()%z;
         int j;
         if(z <= (l/2)){
-            cout<<"type 1"<<"\n";
+            // cout<<"type 1"<<"\n";
             j = rand()%(l+1);
             while(used[j] || (j == 0)){
                 j = rand()%(l+1);
             }
         }
         else{
-            cout<<"type 2"<<"\n";
+            // cout<<"type 2"<<"\n";
             auto iter = not_used.begin();
             int count = rand()%not_used.size();
             for(;iter != not_used.end();iter++){
@@ -463,7 +463,7 @@ using namespace std;
         
         neighbour_cost = cost_fn_exchange_fast(current,curr_cost,i,j);
 
-        cout<<i<<" "<<j<<"\n";
+        // cout<<i<<" "<<j<<"\n";
         return {{neighbour_type,{i,j}},neighbour_cost};
     }
 
