@@ -604,7 +604,7 @@ using namespace std;
         auto current_cost = cost_fn(current);
         long long min_cost = current_cost;
         auto ans = current;
-        if(z==1){return ans;}
+        if(z<=1){return ans;}
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
