@@ -10,6 +10,7 @@ int main(int argc, char** argv )
 {
 
      // Parse the input.
+    auto start_time = std::chrono::high_resolution_clock::now();
     if ( argc < 3 )
     {   
         cout<<"Missing arguments\n";
@@ -21,7 +22,7 @@ int main(int argc, char** argv )
     string outputfilename ( argv[2] );
     
     SportsLayout *s  = new SportsLayout( inputfilename );
-    s->compute_allocation();
+    s->compute_allocation(start_time);
     s->write_to_file(outputfilename);
 
     long long cost = s->cost_fn ();

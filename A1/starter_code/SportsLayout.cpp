@@ -327,6 +327,60 @@ using namespace std;
         return random_state;
     }
 
+    vector<int> SportsLayout::get_random_state_3(){
+        int min = 1;
+        random_device rd;
+        static mt19937_64 generator(rd());
+        uniform_int_distribution<int> dist{min, l};
+        set<int> temp;
+        if(z < (l/2)){
+            while(temp.size() != z)
+            {
+                auto candidate = dist(generator);
+                if(not_used.size() == 0) temp.insert(candidate);
+                else{
+                    auto iter = not_used.find(candidate);
+                    if(iter == not_used.end()) continue;
+                    temp.insert(candidate);
+                }
+                // else temp.insert(candidate);
+            }
+        }
+        else{
+            if(not_used.size() == 0){
+                for(int i = 1;i<=l;i++){
+                    temp.insert(i);
+                }
+                while(temp.size() != z){
+                    auto iter = temp.find(dist(generator));
+                    if(iter == temp.end()) continue;
+                    temp.erase(iter);
+                }
+            }
+            else{
+                temp = set<int>(not_used.begin(),not_used.end());
+                while(temp.size() != z){
+                    temp.insert(dist(generator));
+                }
+            }
+        }
+        vector<int> random_state(temp.begin(),temp.end());
+        random_shuffle(random_state.begin(),random_state.end());
+        cout<<"-----Random restart called-----"<<"\n";
+        preprocess(random_state);
+        fill(used.begin(),used.end(),0);
+        for(auto ele : random_state){
+            used[ele] = 1;
+        }
+        not_used.clear();
+        for(int i = 1;i<=l;i++){
+            if(!used[i]){
+                not_used.insert(i);
+            }
+        }
+        return random_state;
+    }
+
     vector<int> SportsLayout::get_random_state_2(){
         set<int> temp;
         if(z <= (l/2)){
@@ -362,7 +416,7 @@ using namespace std;
         return random_state;
     }
 
-    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point start_time){
+    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time){
         // static srand(static_cast<unsigned>(std::time(0)));
         vector<int> neighbour = current;
         long long min_cost = curr_cost;
@@ -422,9 +476,16 @@ using namespace std;
         return {{neighbour_type,{exchange_pos,new_loc}},min_cost};
     }
 
-    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighbour(vector<int> &current, long long curr_cost){
+    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time){
         // static srand(static_cast<unsigned>(std::time(0)));
         cout<<"-----Random walk initiated-----"<<"\n";
+        auto current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+        if (elapsed_time.count() > (time*60*0.96))
+        {
+            abbort = true;
+            return {{-1,{-1,-1}},-1};
+        }
         int neighbour_type = rand()%2;
         vector<int> neighbour;
         long long neighbour_cost;
@@ -477,7 +538,7 @@ using namespace std;
         uniform_real_distribution<double> dist(0.0,1.0);
         return dist(gen);
     }
-    vector<int> SportsLayout::hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point start_time){
+    vector<int> SportsLayout::hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point &start_time){
         auto current = get_random_state();
         auto current_cost = cost_fn(current);
         long long min_cost = LLONG_MAX;
@@ -552,7 +613,7 @@ using namespace std;
         return ans;
     }
 
-    vector<int> SportsLayout::hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point start_time){
+    vector<int> SportsLayout::hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point &start_time){
         auto current = get_random_state();
         auto current_cost = cost_fn(current);
         long long min_cost = current_cost;
@@ -578,7 +639,10 @@ using namespace std;
                     min_cost = current_cost;
                     ans = current;
                 }
-                auto neigh_val = get_random_neighbour(current, current_cost);
+                auto neigh_val = get_random_neighbour(current, current_cost, start_time);
+                if(abbort){
+                    return ans;
+                }
                 current_cost = neigh_val.second;
                 if(neigh_val.first.first == 0){
                     updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
@@ -648,7 +712,7 @@ using namespace std;
         return ans;
     }
 
-    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point start_time)
+    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point &start_time)
     {
         auto current = get_random_state();
         // assert(is_unique(current));
@@ -676,7 +740,10 @@ using namespace std;
                     min_cost = current_cost;
                     ans = current;
                 }
-                auto neigh_val = get_random_neighbour(current,current_cost);
+                auto neigh_val = get_random_neighbour(current,current_cost, start_time);
+                if(abbort){
+                    return ans;
+                }
                 current_cost = neigh_val.second;
                 if(neigh_val.first.first == 0){
                     updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
@@ -752,7 +819,7 @@ using namespace std;
         return ans;
 
     }
-    vector<int> SportsLayout::simulated_annealing(std::chrono::high_resolution_clock::time_point start_time){
+    vector<int> SportsLayout::simulated_annealing(std::chrono::high_resolution_clock::time_point &start_time){
         auto current = get_random_state();
         // assert(is_unique(current));
         auto current_cost = cost_fn(current);
@@ -778,7 +845,10 @@ using namespace std;
                 cout<<"reached minimum temp, returning the best allocation"<<"\n";
                 return ans;
             }
-            auto neigh_val = get_random_neighbour(current,current_cost);
+            auto neigh_val = get_random_neighbour(current,current_cost,start_time);
+            if(abbort){
+                return ans;
+            }
             long long delta = neigh_val.second - current_cost;
             if(delta < 0){
                 current_cost = neigh_val.second;
@@ -838,7 +908,7 @@ using namespace std;
         }
         return ans;
     }
-    void SportsLayout::compute_allocation()
+    void SportsLayout::compute_allocation(std::chrono::high_resolution_clock::time_point &start_time)
     {
         //you can write your code here 
         //comment out following dummy code
@@ -847,13 +917,14 @@ using namespace std;
 
         
 
-        auto start_time = std::chrono::high_resolution_clock::now();
+        // auto start_time = std::chrono::high_resolution_clock::now();
         // vector<double> probs = {0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.325};
         //best results are coming for prob = 0.275, can tune more if required
         double prob1 = 0.275;
-        double prob2 = 0.075;
+        // double prob2 = 0.075;
         // std::srand(static_cast<unsigned>(std::time(0)));
         mapping = hill_climbing_random_walks_restarts(100000,prob1,start_time);
+        // mapping = hill_climbing_random_restarts(100000,start_time);
         // mapping = simulated_annealing(start_time);
 
     }
