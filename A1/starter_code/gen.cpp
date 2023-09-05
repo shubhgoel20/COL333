@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int maxVal=20;
+int maxVal=1000000000;
 
 void generateRandomArray(int* array,int l)
 {
@@ -9,6 +9,7 @@ void generateRandomArray(int* array,int l)
     {
         int temp_num=(rand()%maxVal);
         array[x]=temp_num+1;
+        // cout<<temp_num<<" "<<maxVal<<"\n";
     }
 }
 
