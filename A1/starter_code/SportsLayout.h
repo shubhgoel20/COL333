@@ -17,10 +17,11 @@ class SportsLayout{
     vector<vector<int>> symsumN;
     vector<vector<long long>> Cex;
     double time;
+    double stop;
     vector<int> mapping;
     vector<int> used;
     set<int> not_used;
-    vector<long long> tot_time;
+    // vector<long long> tot_time;
     bool abbort = false;
     public:
 

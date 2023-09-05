@@ -10,14 +10,20 @@ using namespace std;
     {
           
         readInInputFile(inputfilename);
+        if(time <= (double)1){
+            stop = 0.95;
+        }
+        else if(time <= (double)2){
+            stop = 0.96;
+        }
+        else if(time <= (double)3.5){
+            stop = 0.97;
+        }
+        else{
+            stop = 0.98;
+        }
         mapping= vector<int>(z);
         used = vector<int>(l+1);
-        tot_time = vector<long long>(l+1,0);
-        for(int i = 1;i<=l;i++){
-            for(int j = 1;j<l;j++){
-                tot_time[i]+=(long long)T[i-1][j-1];
-            }
-        }
         Cswap = vector<vector<long long>>(z,vector<long long>(z,0));
         symsumN = vector<vector<int>>(z,vector<int>(z,0));
         Cex = vector<vector<long long>>(z,vector<long long>(l,0));
@@ -431,7 +437,7 @@ using namespace std;
             for(int j = i+1;j<z;j++){
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-                if (elapsed_time.count() > (time*60*0.96))
+                if (elapsed_time.count() > (time*60*stop))
                 {
                     abbort = true;
                     return {{neighbour_type,{swap_pos1,swap_pos2}},min_cost};
@@ -451,7 +457,7 @@ using namespace std;
             for(auto iter = not_used.begin();iter!=not_used.end();iter++){
                 auto current_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-                if (elapsed_time.count() > (time*60*0.96))
+                if (elapsed_time.count() > (time*60*stop))
                 {
                     abbort = true;
                     return {{neighbour_type,{exchange_pos,new_loc}},min_cost};
@@ -481,7 +487,7 @@ using namespace std;
         cout<<"-----Random walk initiated-----"<<"\n";
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-        if (elapsed_time.count() > (time*60*0.96))
+        if (elapsed_time.count() > (time*60*stop))
         {
             abbort = true;
             return {{-1,{-1,-1}},-1};
@@ -547,7 +553,7 @@ using namespace std;
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-            if (elapsed_time.count() > (time*60*0.96))
+            if (elapsed_time.count() > (time*60*stop))
             {
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
                 cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
@@ -622,7 +628,7 @@ using namespace std;
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-            if (elapsed_time.count() > (time*60*0.96))
+            if (elapsed_time.count() > (time*60*stop))
             {
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
                 cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
@@ -723,7 +729,7 @@ using namespace std;
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-            if (elapsed_time.count() > (time*60*0.96))
+            if (elapsed_time.count() > (time*60*stop))
             {
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
                 cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
@@ -835,7 +841,7 @@ using namespace std;
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-            if (elapsed_time.count() > (time*60*0.96))
+            if (elapsed_time.count() > (time*60*stop))
             {
                 std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
                 cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
