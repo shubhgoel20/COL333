@@ -327,6 +327,41 @@ using namespace std;
         return random_state;
     }
 
+    vector<int> SportsLayout::get_random_state_2(){
+        set<int> temp;
+        if(z <= (l/2)){
+            while(temp.size() != z)
+            {
+                temp.insert((rand()%l) + 1);
+            }
+        }
+        else{
+            for(int i = 1;i<=l;i++){
+                temp.insert(i);
+            }
+            while(temp.size() != z){
+                auto iter = temp.find((rand()%l) + 1);
+                if(iter == temp.end()) continue;
+                temp.erase(iter);
+            }
+        }
+        vector<int> random_state(temp.begin(),temp.end());
+        random_shuffle(random_state.begin(),random_state.end());
+        cout<<"-----Random restart called-----"<<"\n";
+        preprocess(random_state);
+        fill(used.begin(),used.end(),0);
+        for(auto ele : random_state){
+            used[ele] = 1;
+        }
+        not_used.clear();
+        for(int i = 1;i<=l;i++){
+            if(!used[i]){
+                not_used.insert(i);
+            }
+        }
+        return random_state;
+    }
+
     pair<pair<int,pair<int,int>>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point start_time){
         // static srand(static_cast<unsigned>(std::time(0)));
         vector<int> neighbour = current;
@@ -383,21 +418,17 @@ using namespace std;
         if(neighbour_type == 0){
             return {{neighbour_type,{swap_pos1,swap_pos2}},min_cost};
         }
-        not_used.erase(not_used.find(new_loc));
-        not_used.insert(old_loc);
-        used[new_loc] = 1;
-        used[old_loc] = 0;
         cout<<"executed second neihgbour fn"<<"\n";
         return {{neighbour_type,{exchange_pos,new_loc}},min_cost};
     }
 
-    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighour(vector<int> &current, long long curr_cost){
+    pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighbour(vector<int> &current, long long curr_cost){
         // static srand(static_cast<unsigned>(std::time(0)));
         cout<<"-----Random walk initiated-----"<<"\n";
         int neighbour_type = rand()%2;
         vector<int> neighbour;
         long long neighbour_cost;
-        // cout<<neighbour_type<<"\n";
+        cout<<neighbour_type<<"\n";
         if(neighbour_type == 0 || (z == l)){
             neighbour_type = 0;
             int i = rand()%z;
@@ -413,14 +444,14 @@ using namespace std;
         int i = rand()%z;
         int j;
         if(z <= (l/2)){
-            // cout<<"type 1"<<"\n";
+            cout<<"type 1"<<"\n";
             j = rand()%(l+1);
             while(used[j] || (j == 0)){
                 j = rand()%(l+1);
             }
         }
         else{
-            // cout<<"type 2"<<"\n";
+            cout<<"type 2"<<"\n";
             auto iter = not_used.begin();
             int count = rand()%not_used.size();
             for(;iter != not_used.end();iter++){
@@ -431,13 +462,8 @@ using namespace std;
         }
         
         neighbour_cost = cost_fn_exchange_fast(current,curr_cost,i,j);
-            
-        not_used.erase(not_used.find(j));
-        not_used.insert(current[i]);
-        used[j] = 1;
-        used[current[i]] = 0;
-        
-        
+
+        cout<<i<<" "<<j<<"\n";
         return {{neighbour_type,{i,j}},neighbour_cost};
     }
 
@@ -445,12 +471,18 @@ using namespace std;
         // static srand(static_cast<unsigned>(std::time(0)));
         return ((double)rand())/RAND_MAX;
     }
-
+    double SportsLayout::get_prob_uniform(){
+        random_device rd;
+        static default_random_engine gen(rd());
+        uniform_real_distribution<double> dist(0.0,1.0);
+        return dist(gen);
+    }
     vector<int> SportsLayout::hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point start_time){
         auto current = get_random_state();
         auto current_cost = cost_fn(current);
         long long min_cost = LLONG_MAX;
         auto ans = current;
+        if(z<=1){return ans;}
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
@@ -502,6 +534,12 @@ using namespace std;
                 else{
                     if(neigh_val.first.second.first != -1){
                         updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                        not_used.erase(not_used.find(neigh_val.first.second.second));
+                        not_used.insert(current[neigh_val.first.second.first]);
+                        used[neigh_val.first.second.second] = 1;
+                        used[current[neigh_val.first.second.first]] = 0;
+
                         current[neigh_val.first.second.first] = neigh_val.first.second.second;
                     }
                 }
@@ -519,6 +557,7 @@ using namespace std;
         auto current_cost = cost_fn(current);
         long long min_cost = current_cost;
         auto ans = current;
+        if(z<=1){return ans;}
         while(true){
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
@@ -539,7 +578,7 @@ using namespace std;
                     min_cost = current_cost;
                     ans = current;
                 }
-                auto neigh_val = get_random_neighour(current, current_cost);
+                auto neigh_val = get_random_neighbour(current, current_cost);
                 current_cost = neigh_val.second;
                 if(neigh_val.first.first == 0){
                     updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
@@ -548,6 +587,12 @@ using namespace std;
                 }
                 else{
                     updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                    not_used.erase(not_used.find(neigh_val.first.second.second));
+                    not_used.insert(current[neigh_val.first.second.first]);
+                    used[neigh_val.first.second.second] = 1;
+                    used[current[neigh_val.first.second.first]] = 0;
+
                     current[neigh_val.first.second.first] = neigh_val.first.second.second;
                 }
             }
@@ -583,6 +628,12 @@ using namespace std;
                     else{
                         if(neigh_val.first.second.first != -1){
                             updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                            not_used.erase(not_used.find(neigh_val.first.second.second));
+                            not_used.insert(current[neigh_val.first.second.first]);
+                            used[neigh_val.first.second.second] = 1;
+                            used[current[neigh_val.first.second.first]] = 0;
+
                             current[neigh_val.first.second.first] = neigh_val.first.second.second;
                         }
                     }
@@ -625,7 +676,7 @@ using namespace std;
                     min_cost = current_cost;
                     ans = current;
                 }
-                auto neigh_val = get_random_neighour(current,current_cost);
+                auto neigh_val = get_random_neighbour(current,current_cost);
                 current_cost = neigh_val.second;
                 if(neigh_val.first.first == 0){
                     updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
@@ -633,6 +684,12 @@ using namespace std;
                 }
                 else{
                     updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                    not_used.erase(not_used.find(neigh_val.first.second.second));
+                    not_used.insert(current[neigh_val.first.second.first]);
+                    used[neigh_val.first.second.second] = 1;
+                    used[current[neigh_val.first.second.first]] = 0;
+
                     current[neigh_val.first.second.first] = neigh_val.first.second.second;
                 }
                 // assert(is_unique(current));
@@ -674,6 +731,12 @@ using namespace std;
                     else{
                         if(neigh_val.first.second.first != -1){
                             updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                            not_used.erase(not_used.find(neigh_val.first.second.second));
+                            not_used.insert(current[neigh_val.first.second.first]);
+                            used[neigh_val.first.second.second] = 1;
+                            used[current[neigh_val.first.second.first]] = 0;
+
                             current[neigh_val.first.second.first] = neigh_val.first.second.second;
                         }
                     }
@@ -689,7 +752,92 @@ using namespace std;
         return ans;
 
     }
+    vector<int> SportsLayout::simulated_annealing(std::chrono::high_resolution_clock::time_point start_time){
+        auto current = get_random_state();
+        // assert(is_unique(current));
+        auto current_cost = cost_fn(current);
+        long long min_cost = current_cost;
+        auto ans = current;
+        double T = time*60.0*1e8;
+        double T_change = (((long long)1)<<23)*(1.0);
+        long long check = 1;
+        while(check < T){
+            check = check*2;
+        }
+        check = check/2;
+        while(true){
+            auto current_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+            if (elapsed_time.count() > (time*60*0.96))
+            {
+                std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                return ans;
+            }
+            if(T < (double)1e-31){
+                cout<<"reached minimum temp, returning the best allocation"<<"\n";
+                return ans;
+            }
+            auto neigh_val = get_random_neighbour(current,current_cost);
+            long long delta = neigh_val.second - current_cost;
+            if(delta < 0){
+                current_cost = neigh_val.second;
+                if(neigh_val.first.first == 0){
+                    updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
+                    swap(current[neigh_val.first.second.first],current[neigh_val.first.second.second]);
 
+                }
+                else{
+                    updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                    not_used.erase(not_used.find(neigh_val.first.second.second));
+                    not_used.insert(current[neigh_val.first.second.first]);
+                    used[neigh_val.first.second.second] = 1;
+                    used[current[neigh_val.first.second.first]] = 0;
+
+                    current[neigh_val.first.second.first] = neigh_val.first.second.second;
+                }
+                // assert(is_unique(current));
+            }
+            else{
+                if(get_prob_uniform() < exp((-1*delta)/T)){
+                    current_cost = neigh_val.second;
+                    if(neigh_val.first.first == 0){
+                        updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
+                        swap(current[neigh_val.first.second.first],current[neigh_val.first.second.second]);
+
+                    }
+                    else{
+                        updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                        not_used.erase(not_used.find(neigh_val.first.second.second));
+                        not_used.insert(current[neigh_val.first.second.first]);
+                        used[neigh_val.first.second.second] = 1;
+                        used[current[neigh_val.first.second.first]] = 0;
+
+                        current[neigh_val.first.second.first] = neigh_val.first.second.second;
+                    }
+                    // assert(is_unique(current));
+                }
+            }
+            if(T < (double)check){
+                while(check > T){
+                    check = check/2;
+                }
+                T_change = T_change/2;
+            }
+            while(T_change >= T){
+                T_change = T_change/2;
+            }
+            T-=T_change;
+            if(current_cost < min_cost){
+                min_cost = current_cost;
+                ans = current;
+            }
+            cout<<"Temperature: "<<T<<" Change: "<<T_change<<"\n";
+        }
+        return ans;
+    }
     void SportsLayout::compute_allocation()
     {
         //you can write your code here 
@@ -706,6 +854,8 @@ using namespace std;
         double prob2 = 0.075;
         // std::srand(static_cast<unsigned>(std::time(0)));
         mapping = hill_climbing_random_walks_restarts(100000,prob1,start_time);
+        // mapping = simulated_annealing(start_time);
+
     }
 
 
