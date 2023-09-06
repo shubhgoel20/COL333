@@ -273,7 +273,9 @@ using namespace std;
     void SportsLayout::write_to_file(string outputfilename){
 
         bool correct = check_output_format();
-        if(!correct) return;
+        if(!correct){
+            mapping = get_random_state();
+        }
 
          // Open the file for writing
         ofstream outputFile(outputfilename);
@@ -317,6 +319,7 @@ using namespace std;
             }
         }
         vector<int> random_state(temp.begin(),temp.end());
+        //purposely used shuffle two times here
         shuffle(random_state.begin(),random_state.end(),generator);
         shuffle(random_state.begin(),random_state.end(),generator);
         preprocess(random_state);
@@ -800,17 +803,14 @@ using namespace std;
         return curr/(1.0+decay*epoch);
     }
 
-    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, int steps, std::chrono::high_resolution_clock::time_point &start_time)
+    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point &start_time)
     {
-        auto curr_prob = prob;
         auto current = get_random_state();
-        // assert(is_unique(current));
         auto current_cost = cost_fn(current);
-        int epoch = 0;
         long long min_cost = current_cost;
         auto ans = current;
-        int curr_step = steps;
         if(z<=1){return ans;}
+        deque<pair<vector<int>,int>> visited_states;
         while(true){
             // cout<<"==========================================================================="<<"\n";
             auto current_time = std::chrono::high_resolution_clock::now();
@@ -827,10 +827,7 @@ using namespace std;
                 return ans;
             }
             double check = get_prob();
-            // curr_prob = exp_decay(epoch,0.1,prob);
-            curr_prob = time_based_decay(curr_prob,0.01,epoch);
-            // cout<<check<<"\n";
-            if(check < curr_prob){
+            if(check < prob){
                 if(current_cost < min_cost){
                     min_cost = current_cost;
                     ans = current;
@@ -855,43 +852,15 @@ using namespace std;
 
                     current[neigh_val.first.second.first] = neigh_val.first.second.second;
                 }
+                visited_states.push_back({current,0});
+                if(visited_states.size() > 100) visited_states.pop_front();
                 // assert(is_unique(current));
             }
             else{
                 // cout<<"-----Taking greedy step-----"<<"\n";
                 // curr_step = max(1,(int)floor(exp_decay(epoch,0.1,steps)));
-                curr_step = max(1,(int)floor(time_based_decay(curr_step,0.01,epoch)));
+                // curr_step = max(1,(int)floor(time_based_decay(curr_step,0.01,epoch)));
                 auto neigh_val = get_neighbour(current,current_cost,start_time);
-                for(int i = 1;i<curr_step;i++){
-                    if(abbort){
-                        current_time = std::chrono::high_resolution_clock::now();
-                        elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
-                        std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
-                        cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
-                        return ans;
-                    }
-                    current_cost = neigh_val.second;
-                    if(neigh_val.first.first == 0){
-                        if(neigh_val.first.second.first != neigh_val.first.second.second){
-                            updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
-                            swap(current[neigh_val.first.second.first],current[neigh_val.first.second.second]);
-                        }
-
-                    }
-                    else{
-                        if(neigh_val.first.second.first != -1){
-                            updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
-
-                            not_used.erase(not_used.find(neigh_val.first.second.second));
-                            not_used.insert(current[neigh_val.first.second.first]);
-                            used[neigh_val.first.second.second] = 1;
-                            used[current[neigh_val.first.second.first]] = 0;
-
-                            current[neigh_val.first.second.first] = neigh_val.first.second.second;
-                        }
-                    }
-                    neigh_val = get_neighbour(current,current_cost,start_time);
-                }
                 if(abbort){
                     current_time = std::chrono::high_resolution_clock::now();
                     elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
@@ -903,22 +872,69 @@ using namespace std;
                     if(current_cost < min_cost){
                         min_cost = current_cost;
                         ans = current;
-                        cout<<min_cost<<" "<<"local minima"<<"\n";
+                        // cout<<min_cost<<" "<<"local minima"<<"\n";
                     }
-                    if(max_restarts > 0){
-                        count_restarts++;
-                        current = get_random_state();
-                        current_cost = cost_fn(current);
-                        // curr_prob = prob;
-                        max_restarts--;
-                        epoch = 0;
-                        curr_prob = prob;
-                        curr_step = steps;
+                    while(!visited_states.empty()){
+                        auto temp = visited_states.back();
+                        visited_states.pop_back();
+                        if(temp.second == 0) break;
+                    }
+                    if(visited_states.empty()){
+                        if(max_restarts > 0){
+                            current = get_random_state();
+                            current_cost = cost_fn(current);
+                            max_restarts--;
+                        }
+                        else{
+                            cout<<"Max restarts limit reached, return the current best allocation"<<"\n";
+                            return ans;
+                        }
                     }
                     else{
-                        cout<<"Max restarts limit reached, return the current best allocation"<<"\n";
-                        return ans;
+                        current = visited_states.back().first;
+                        preprocess(current);
+                        fill(used.begin(),used.end(),0);
+                        for(auto ele : current){
+                            used[ele] = 1;
+                        }
+                        not_used.clear();
+                        for(int i = 1;i<=l;i++){
+                            if(!used[i]){
+                                not_used.insert(i);
+                            }
+                        }
+                        auto neigh_val = get_neighbour(current,cost_fn(current),start_time);
+                        if(abbort){
+                            current_time = std::chrono::high_resolution_clock::now();
+                            elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                            std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                            cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                            return ans;
+                        }
+                        current_cost = neigh_val.second;
+                        if(neigh_val.first.first == 0){
+                            if(neigh_val.first.second.first != neigh_val.first.second.second){
+                                updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
+                                swap(current[neigh_val.first.second.first],current[neigh_val.first.second.second]);
+                            }
+
+                        }
+                        else{
+                            if(neigh_val.first.second.first != -1){
+                                updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                                not_used.erase(not_used.find(neigh_val.first.second.second));
+                                not_used.insert(current[neigh_val.first.second.first]);
+                                used[neigh_val.first.second.second] = 1;
+                                used[current[neigh_val.first.second.first]] = 0;
+
+                                current[neigh_val.first.second.first] = neigh_val.first.second.second;
+                            }
+                        }
+                        visited_states.push_back({current,1});
+                        if(visited_states.size() > 100) visited_states.pop_front();
                     }
+                    
                 }
                 else{
                     current_cost = neigh_val.second;
@@ -941,17 +957,18 @@ using namespace std;
                             current[neigh_val.first.second.first] = neigh_val.first.second.second;
                         }
                     }
-                    string log = neigh_val.first.first == 0?"swap":"exchange";
+                    // string log = neigh_val.first.first == 0?"swap":"exchange";
                     if(current_cost < min_cost){
                         ans = current;
                         min_cost = current_cost;
-                        cout<<min_cost<<" "<<log<<" "<<curr_step<<"\n";
+                        cout<<min_cost<<"\n";
                     }
+                    visited_states.push_back({current,1});
+                    if(visited_states.size() > 100) visited_states.pop_front();
                     // assert(is_unique(current));
                 }
                 
             }
-            epoch++;
             
         }
         return ans;
@@ -1058,12 +1075,11 @@ using namespace std;
         // auto start_time = std::chrono::high_resolution_clock::now();
         // vector<double> probs = {0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.325,0.35,0.375,0.4};
         //best results are coming for prob = 0.275, can tune more if required
-        double prob1 = 0.32;
+        double prob = 0.4;
         //5
         // double prob2 = 0.075;
         // std::srand(static_cast<unsigned>(std::time(0)));
-        mapping = hill_climbing_random_walks_restarts(100000,prob1,8,start_time);
-        cout<<count_restarts<<"\n";
+        mapping = hill_climbing_random_walks_restarts(100000,prob,start_time);
         // mapping = hill_climbing_random_restarts(100000,start_time);
         // mapping = simulated_annealing(start_time);
 
