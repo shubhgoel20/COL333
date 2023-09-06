@@ -317,8 +317,8 @@ using namespace std;
             }
         }
         vector<int> random_state(temp.begin(),temp.end());
-        random_shuffle(random_state.begin(),random_state.end());
-        cout<<"-----Random restart called-----"<<"\n";
+        shuffle(random_state.begin(),random_state.end(),generator);
+        shuffle(random_state.begin(),random_state.end(),generator);
         preprocess(random_state);
         fill(used.begin(),used.end(),0);
         for(auto ele : random_state){
@@ -371,8 +371,9 @@ using namespace std;
             }
         }
         vector<int> random_state(temp.begin(),temp.end());
-        random_shuffle(random_state.begin(),random_state.end());
-        cout<<"-----Random restart called-----"<<"\n";
+        shuffle(random_state.begin(),random_state.end(),generator);
+        shuffle(random_state.begin(),random_state.end(),generator);
+        // cout<<"-----Random restart called-----"<<"\n";
         preprocess(random_state);
         fill(used.begin(),used.end(),0);
         for(auto ele : random_state){
@@ -420,6 +421,79 @@ using namespace std;
             }
         }
         return random_state;
+    }
+
+    pair<vector<int>,long long> SportsLayout::bfs(vector<int> state, std::chrono::high_resolution_clock::time_point &start_time){
+        map<vector<int>,bool> visited;
+        map<vector<int>,int> dist;
+        queue<vector<int>> q;
+        q.push(state);
+        dist[state] = 0;
+        vector<vector<int>> collect;
+        while(!q.empty()){
+            auto curr = q.front();
+            q.pop();
+            if(visited[curr]) continue;
+            visited[curr] = 1;
+            if(dist[curr] >= 100){
+                collect.push_back(curr);
+                continue;
+            }
+            int k = z*z;
+            while(k--){
+                auto neigh = get_neighbour_bfs(curr,start_time);
+                if(abbort) return {{},LLONG_MAX};
+                if(visited[neigh]) continue;
+                if(dist[neigh] == 0) dist[neigh] = dist[curr]+1;
+                else dist[neigh] = min(dist[neigh],dist[curr]+1);
+                q.push(neigh);
+                if(q.size() == 100) break;
+            }
+        }
+        vector<int> temp;
+        long long min_cost = LLONG_MAX;
+        for(auto &x : collect){
+            long long curr_cost = cost_fn(x);
+            if(curr_cost < min_cost){
+                min_cost = curr_cost;
+                temp = x;
+            }
+        }
+        return {temp,min_cost};
+    }
+    vector<int> SportsLayout::get_neighbour_bfs(vector<int> &state, std::chrono::high_resolution_clock::time_point &start_time){
+        auto current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+        if (elapsed_time.count() > (time*60*stop))
+        {
+            abbort = true;
+            return {};
+        }
+        int neighbour_type = rand()%2;
+        vector<int> neighbour = state;
+        // long long neighbour_cost;
+        // cout<<neighbour_type<<"\n";
+        if(neighbour_type == 0 || (z == l)){
+            neighbour_type = 0;
+            int i = rand()%z;
+            int j = rand()%z;
+            while(j == i){
+                j = rand()%z;
+            }
+            
+            swap(neighbour[i],neighbour[j]);
+            return neighbour;
+            
+        }
+        neighbour_type = 1;
+        int i = rand()%z;
+        int j = (rand()%l + 1);
+        set<int> check(state.begin(),state.end());
+        while(check.find(j) != check.end()){
+            j = (rand()%l + 1);
+        }
+        neighbour[i] = j;
+        return neighbour;
     }
 
     pair<pair<int,pair<int,int>>,long long> SportsLayout::get_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time){
@@ -478,13 +552,13 @@ using namespace std;
         if(neighbour_type == 0){
             return {{neighbour_type,{swap_pos1,swap_pos2}},min_cost};
         }
-        cout<<"executed second neihgbour fn"<<"\n";
+        // cout<<"executed second neihgbour fn"<<"\n";
         return {{neighbour_type,{exchange_pos,new_loc}},min_cost};
     }
 
     pair<pair<int,pair<int,int>>,long long> SportsLayout::get_random_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time){
         // static srand(static_cast<unsigned>(std::time(0)));
-        cout<<"-----Random walk initiated-----"<<"\n";
+        // cout<<"-----Random walk initiated-----"<<"\n";
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
         if (elapsed_time.count() > (time*60*stop))
@@ -493,7 +567,7 @@ using namespace std;
             return {{-1,{-1,-1}},-1};
         }
         int neighbour_type = rand()%2;
-        vector<int> neighbour;
+        // vector<int> neighbour;
         long long neighbour_cost;
         // cout<<neighbour_type<<"\n";
         if(neighbour_type == 0 || (z == l)){
@@ -718,15 +792,27 @@ using namespace std;
         return ans;
     }
 
-    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point &start_time)
+    double SportsLayout::exp_decay(int epoch, int k, int init){
+        return init*exp(-k*epoch);
+    }
+
+    double SportsLayout::time_based_decay(double curr, double decay, int epoch){
+        return curr/(1.0+decay*epoch);
+    }
+
+    vector<int> SportsLayout::hill_climbing_random_walks_restarts(int max_restarts, double prob, int steps, std::chrono::high_resolution_clock::time_point &start_time)
     {
+        auto curr_prob = prob;
         auto current = get_random_state();
         // assert(is_unique(current));
         auto current_cost = cost_fn(current);
+        int epoch = 0;
         long long min_cost = current_cost;
         auto ans = current;
+        int curr_step = steps;
         if(z<=1){return ans;}
         while(true){
+            // cout<<"==========================================================================="<<"\n";
             auto current_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
             if (elapsed_time.count() > (time*60*stop))
@@ -736,15 +822,19 @@ using namespace std;
                 if(current_cost < min_cost){
                     min_cost = current_cost;
                     ans = current;
+                    cout<<min_cost<<" "<<"abbort"<<"\n";
                 }
                 return ans;
             }
             double check = get_prob();
-            cout<<check<<"\n";
-            if(check <= prob){
+            // curr_prob = exp_decay(epoch,0.1,prob);
+            curr_prob = time_based_decay(curr_prob,0.01,epoch);
+            // cout<<check<<"\n";
+            if(check < curr_prob){
                 if(current_cost < min_cost){
                     min_cost = current_cost;
                     ans = current;
+                    cout<<min_cost<<" "<<"random walk"<<"\n";
                 }
                 auto neigh_val = get_random_neighbour(current,current_cost, start_time);
                 if(abbort){
@@ -768,8 +858,40 @@ using namespace std;
                 // assert(is_unique(current));
             }
             else{
-                cout<<"-----Taking greedy step-----"<<"\n";
+                // cout<<"-----Taking greedy step-----"<<"\n";
+                // curr_step = max(1,(int)floor(exp_decay(epoch,0.1,steps)));
+                curr_step = max(1,(int)floor(time_based_decay(curr_step,0.01,epoch)));
                 auto neigh_val = get_neighbour(current,current_cost,start_time);
+                for(int i = 1;i<curr_step;i++){
+                    if(abbort){
+                        current_time = std::chrono::high_resolution_clock::now();
+                        elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
+                        std::cout << "Time limit exceeded, returning the current best allocation" << std::endl;
+                        cout<<"Time Taken: "<<elapsed_time.count()<<" seconds"<<"\n";
+                        return ans;
+                    }
+                    current_cost = neigh_val.second;
+                    if(neigh_val.first.first == 0){
+                        if(neigh_val.first.second.first != neigh_val.first.second.second){
+                            updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
+                            swap(current[neigh_val.first.second.first],current[neigh_val.first.second.second]);
+                        }
+
+                    }
+                    else{
+                        if(neigh_val.first.second.first != -1){
+                            updateCex(neigh_val.first.second.first,neigh_val.first.second.second,current);
+
+                            not_used.erase(not_used.find(neigh_val.first.second.second));
+                            not_used.insert(current[neigh_val.first.second.first]);
+                            used[neigh_val.first.second.second] = 1;
+                            used[current[neigh_val.first.second.first]] = 0;
+
+                            current[neigh_val.first.second.first] = neigh_val.first.second.second;
+                        }
+                    }
+                    neigh_val = get_neighbour(current,current_cost,start_time);
+                }
                 if(abbort){
                     current_time = std::chrono::high_resolution_clock::now();
                     elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time);
@@ -781,11 +903,17 @@ using namespace std;
                     if(current_cost < min_cost){
                         min_cost = current_cost;
                         ans = current;
+                        cout<<min_cost<<" "<<"local minima"<<"\n";
                     }
                     if(max_restarts > 0){
+                        count_restarts++;
                         current = get_random_state();
                         current_cost = cost_fn(current);
+                        // curr_prob = prob;
                         max_restarts--;
+                        epoch = 0;
+                        curr_prob = prob;
+                        curr_step = steps;
                     }
                     else{
                         cout<<"Max restarts limit reached, return the current best allocation"<<"\n";
@@ -813,26 +941,30 @@ using namespace std;
                             current[neigh_val.first.second.first] = neigh_val.first.second.second;
                         }
                     }
+                    string log = neigh_val.first.first == 0?"swap":"exchange";
                     if(current_cost < min_cost){
                         ans = current;
                         min_cost = current_cost;
+                        cout<<min_cost<<" "<<log<<" "<<curr_step<<"\n";
                     }
                     // assert(is_unique(current));
                 }
+                
             }
+            epoch++;
             
         }
         return ans;
 
     }
-    vector<int> SportsLayout::simulated_annealing(std::chrono::high_resolution_clock::time_point &start_time){
-        auto current = get_random_state();
+    vector<int> SportsLayout::simulated_annealing(vector<int> &curr, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time){
+        auto current = curr;
         // assert(is_unique(current));
-        auto current_cost = cost_fn(current);
+        auto current_cost = curr_cost;
         long long min_cost = current_cost;
         auto ans = current;
-        double T = time*60.0*1e8;
-        double T_change = (((long long)1)<<23)*(1.0);
+        double T = (double)((long long)1<<13);
+        double T_change = 64.0;
         long long check = 1;
         while(check < T){
             check = check*2;
@@ -876,7 +1008,7 @@ using namespace std;
                 // assert(is_unique(current));
             }
             else{
-                if(get_prob_uniform() < exp((-1*delta)/T)){
+                if(get_prob() < exp((-1*delta)/T)){
                     current_cost = neigh_val.second;
                     if(neigh_val.first.first == 0){
                         updateCswap(neigh_val.first.second.first,neigh_val.first.second.second,current);
@@ -924,12 +1056,14 @@ using namespace std;
         
 
         // auto start_time = std::chrono::high_resolution_clock::now();
-        // vector<double> probs = {0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.325};
+        // vector<double> probs = {0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.325,0.35,0.375,0.4};
         //best results are coming for prob = 0.275, can tune more if required
-        double prob1 = 0.275;
+        double prob1 = 0.32;
+        //5
         // double prob2 = 0.075;
         // std::srand(static_cast<unsigned>(std::time(0)));
-        mapping = hill_climbing_random_walks_restarts(100000,prob1,start_time);
+        mapping = hill_climbing_random_walks_restarts(100000,prob1,8,start_time);
+        cout<<count_restarts<<"\n";
         // mapping = hill_climbing_random_restarts(100000,start_time);
         // mapping = simulated_annealing(start_time);
 

@@ -23,6 +23,7 @@ class SportsLayout{
     set<int> not_used;
     // vector<long long> tot_time;
     bool abbort = false;
+    int count_restarts = 0;
     public:
 
     SportsLayout(string inputfilename);
@@ -49,8 +50,8 @@ class SportsLayout{
 
     vector<int> hill_climbing_random_restarts(int max_restarts, std::chrono::high_resolution_clock::time_point &start_time);
     vector<int> hill_climbing_random_walks(double prob, std::chrono::high_resolution_clock::time_point &start_time);
-    vector<int> hill_climbing_random_walks_restarts(int max_restarts, double prob, std::chrono::high_resolution_clock::time_point &start_time);
-    vector<int> simulated_annealing(std::chrono::high_resolution_clock::time_point &start_time);
+    vector<int> hill_climbing_random_walks_restarts(int max_restarts, double prob, int steps, std::chrono::high_resolution_clock::time_point &start_time);
+    vector<int> simulated_annealing(vector<int> &curr, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time);
     pair<pair<int,pair<int,int>>,long long> get_neighbour(vector<int> &current, long long curr_cost,std::chrono::high_resolution_clock::time_point &start_time);
     pair<pair<int,pair<int,int>>,long long> get_random_neighbour(vector<int> &current, long long curr_cost, std::chrono::high_resolution_clock::time_point &start_time);
     vector<int> get_random_state();
@@ -63,6 +64,10 @@ class SportsLayout{
     void updateCswap(int i, int j, vector<int> &state);
     void updateCex(int i, int new_loc, vector<int> &state);
     bool is_unique(vector<int> &state);
+    pair<vector<int>,long long> bfs(vector<int> state, std::chrono::high_resolution_clock::time_point &start_time);
+    vector<int> get_neighbour_bfs(vector<int> &state, std::chrono::high_resolution_clock::time_point &start_time);
+    double exp_decay(int epoch, int k, int init);
+    double time_based_decay(double curr, double decay, int epoch);
 };
 
 
