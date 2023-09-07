@@ -1,3 +1,0 @@
-1
-None
-Hill Climbing with random walks and restarts.
