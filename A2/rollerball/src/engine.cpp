@@ -149,7 +149,7 @@ void Engine::find_best_move(const Board& b) {
 
 
         Board* b_copy=b.copy();
-        this->best_move = (U16)(evaluate_move(b_copy,0,2).first); 
+        this->best_move = (U16)(evaluate_move(b_copy,0,0).first); 
         b_copy->do_move(this->best_move);
         std::string board_str_rep = board_to_str(reinterpret_cast<U8*>(b_copy));
         delete b_copy;
