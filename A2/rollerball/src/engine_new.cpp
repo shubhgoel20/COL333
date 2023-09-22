@@ -9,7 +9,78 @@
 #include "board.hpp"
 #include "engine.hpp"
 
-#define WT_MULTIPLIER 1000
+struct Value
+{
+    int val1,val2,val3;
+    Value()
+    {
+        val1=0;
+        val2=0;
+        val3=0;
+    }
+    Value(int a,int b,int c)
+    {
+        val1=a;
+        val2=b;
+        val3=c;
+    }
+    Value(int a)
+    {
+        val1=a;
+        val2=a;
+        val3=a;
+    }
+    bool operator>(const Value& var)
+    {
+        if(val1>var.val1)   return true;
+        else if(val1<var.val1)  return false;
+        else if(val2>var.val2)  return true;
+        else if(val2<var.val2)  return false;
+        else if(val3>var.val3)  return true;
+        else return false;
+    }
+    bool operator<(const Value& var)
+    {
+        if(val1<var.val1)   return true;
+        else if(val1>var.val1)  return false;
+        else if(val2<var.val2)  return true;
+        else if(val2>var.val2)  return false;
+        else if(val3<var.val3)  return true;
+        else return false;
+    }
+    bool operator==(const Value& var)
+    {
+        return ((val1==var.val1) && (val2==var.val2) && (val3=var.val3));
+    }
+    bool operator>=(const Value& var)
+    {
+        if(*this>var)   return true;
+        else if(*this==var) return true;
+        else    return false;
+    }
+    bool operator<=(const Value& var)
+    {
+        if(*this<var)   return true;
+        else if(*this==var) return true;
+        else    return false;
+    }
+
+    static Value max(Value& v1, Value& v2)
+    {
+        if(v1>v2)   return v1;
+        else    return v2;
+    }
+    static Value min(Value& v1,Value& v2)
+    {
+        if(v1<v2)   return v1;
+        else    return v2;
+    }
+    static bool compare_pair(std::pair<Value,U16>& p1,std::pair<Value,U16>& p2)
+    {
+        if(p1.first==p2.first)  return p1.second<p2.second;
+        return p1.first<p2.first;
+    }
+};
 
 bool time_check(std::chrono::high_resolution_clock::time_point& start_time){
     auto cur_time=std::chrono::high_resolution_clock::now();
@@ -22,10 +93,11 @@ bool time_check(std::chrono::high_resolution_clock::time_point& start_time){
     return 1;
 }
 
-int evaluation_func(Board* board_copy,PlayerColor my_col)
+Value evaluation_func(Board* board_copy,PlayerColor my_col)
 {
     // int mult1=20000,mult2=500,mult3=1;
-    int w_king=7*WT_MULTIPLIER,w_bishop=5*WT_MULTIPLIER,w_rook=3*WT_MULTIPLIER,w_pawn=1*WT_MULTIPLIER;    
+    int w_king=7,w_bishop=5,w_rook=3,w_pawn=1;    
+    // int w_king=8*500,w_bishop=6*500,w_rook=4*500,w_pawn=1*500; 
     // int w_threat_bishop=3,w_threat_rook=2,w_threats_pawn=1;
     int w_moves=1;    
 
@@ -47,9 +119,9 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
     if( ( (curr_col==WHITE && moveset[0].size()==0) || (curr_col==BLACK && moveset[1].size()==0) )  && board_copy->in_check())  //checkmate
     {
         if(curr_col==my_col)
-            return INT_MIN;
+            return Value(INT_MIN);
         else
-            return INT_MAX;
+            return Value(INT_MAX);
 
     }
     //  In stalement points pieces alive can determine the points obtained
@@ -124,83 +196,74 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
         // std::cout<<"Bishops = "<<num_bishops[0]<<","<<num_bishops[1]<<std::endl;
         // std::cout<<"Moves = "<<moveset[0].size()<<","<<moveset[1].size()<<std::endl;
     // }
-    return (evaluation+(moveset[0].size()-moveset[1].size())*w_moves);      
+    return Value(evaluation,0,(moveset[0].size()-moveset[1].size())*w_moves);      
 
 }
 
-int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col);
+Value minval(Board *b, int curr_depth, Value alpha, Value beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col);
 
-int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
+Value maxval(Board *b, int curr_depth, Value alpha, Value beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
-    if(curr_depth<=0  || time_check(start_time)==0)
-    {
-        int temp=evaluation_func(b,my_col);
-        std::cout<<"MAXVAL Output = "<<temp<<std::endl;
-        return temp;
-    }   
+    if(curr_depth<=0  || time_check(start_time)==0)     return evaluation_func(b,my_col);
 
     auto moveset=b->get_legal_moves();
-    int ans=INT_MIN;
+    Value ans=Value(INT_MIN);
     for(auto move:moveset)
     {
         Board* temp_b=b->copy();
         temp_b->do_move(move);
-        int temp_ans=minval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
-        ans=std::max(ans,temp_ans);
+        Value temp_ans=minval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
+        ans=Value::max(ans,temp_ans);
         delete temp_b;
-        alpha=std::max(alpha,ans);
+        alpha=Value::max(alpha,ans);
         if(alpha>=beta)
             break;
     }
-    std::cout<<"MAXVAL Output = "<<ans<<std::endl;
     return ans;
 }
 
-int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
+Value minval(Board *b, int curr_depth, Value alpha, Value beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
     if(curr_depth<=0 || time_check(start_time)==0)
     {
-        int temp=evaluation_func(b,my_col);
-        std::cout<<"MINVAL Output = "<<temp<<std::endl;
-        return temp;
+        return evaluation_func(b,my_col);
     }
     auto moveset=b->get_legal_moves();
-    int ans=INT_MAX;
+    Value ans=Value(INT_MAX);
     for(auto move:moveset)
     {
         Board* temp_b=b->copy();
         temp_b->do_move(move);
-        int temp_ans=maxval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
-        ans=std::min(ans,temp_ans);
+        Value temp_ans=maxval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
+        ans=Value::min(ans,temp_ans);
         delete temp_b;
-        beta=std::min(beta,ans);
+        beta=Value::min(beta,ans);
         if(alpha>=beta)
             break;
     }
-    std::cout<<"MINVAL Output = "<<ans<<std::endl;
     return ans;
 }
 
-std::vector<std::pair<int,U16>> minimax(Board *b, int curr_depth,std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
+std::vector<std::pair<Value,U16>> minimax(Board *b, int curr_depth,std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
-    std::vector<std::pair<int,U16>> ans;
+    std::vector<std::pair<Value,U16>> ans;
     auto moveset=b->get_legal_moves();
     for(auto move : moveset)
     {
         Board* temp_b=b->copy();
         temp_b->do_move(move);
-        int val = minval(temp_b,curr_depth-1,INT_MIN,INT_MAX,start_time,my_col);
+        Value val = minval(temp_b,curr_depth-1,Value(INT_MIN),Value(INT_MAX),start_time,my_col);
         delete temp_b;
-        ans.push_back(std::pair<int,U16>(val,move));
+        ans.push_back(std::pair<Value,U16>(val,move));
     }
-    sort(ans.begin(),ans.end());
+    sort(ans.begin(),ans.end(),Value::compare_pair);
     return ans;
 }
 
 void Engine::find_best_move(const Board& b) 
 {
     static int counter=-1;
-    auto start_time=std::chrono::high_resolution_clock::now();
+    counter++;
     auto moveset = b.get_legal_moves();
     if (moveset.size() == 0) 
     {
@@ -208,82 +271,43 @@ void Engine::find_best_move(const Board& b)
     }
     else
     {
-        int opening=1;
-        if(b.data.player_to_play==BLACK)
+        U16 preferred_move=0;
+        switch(counter)
         {
-            if(b.data.b_bishop==DEAD || b.data.b_rook_bs==DEAD || b.data.b_rook_ws==DEAD || b.data.b_pawn_bs==DEAD || b.data.b_pawn_ws==DEAD || b.in_check())
-                opening=0;
+            case 0: preferred_move=move(pos(2,1),pos(1,1));
+            break;
+            case 1: preferred_move=move(pos(3,0),pos(1,2));
+            break;
+            case 2: preferred_move=move(pos(2,0),pos(2,1));
+            break;
+            case 3: preferred_move=move(pos(4,0),pos(0,0));
+            break;
         }
-        else
-        {
-            if(b.data.w_bishop==DEAD || b.data.w_rook_bs==DEAD || b.data.w_rook_ws==DEAD || b.data.w_pawn_bs==DEAD || b.data.w_pawn_ws==DEAD || b.in_check())            
-                opening=0;
-        }
-        counter++;
-        if(opening)
-        {
-            U16 preferred_move=0;
-            if(b.data.player_to_play==WHITE)
-            {
-                switch(counter)
-                {
-                    case 0: preferred_move=move(pos(4,1),pos(5,1));
-                    break;
-                    case 1: preferred_move=move(pos(3,0),pos(4,1));
-                    break;
-                    case 2: preferred_move=move(pos(2,0),pos(1,1));
-                    break;
-                    case 3: preferred_move=move(pos(4,0),pos(0,0));
-                    break;
-                    case 4: preferred_move=move(pos(5,1),pos(5,0));
-                    break;
-                }
-            }
-            else
-            {
-                switch(counter)
-                {
-                    case 0: preferred_move=move(pos(2,5),pos(1,5));
-                    break;
-                    case 1: preferred_move=move(pos(3,6),pos(2,5));
-                    break;
-                    case 2: preferred_move=move(pos(4,6),pos(5,5));
-                    break;
-                    case 3: preferred_move=move(pos(2,6),pos(6,6));
-                    break;
-                    case 4: preferred_move=move(pos(1,5),pos(1,6));
-                    break;
-                }
-            }
-            
-            if(preferred_move!=0)
-            {
-                for(auto move:moveset)
-                {
-                    if(preferred_move==move)
-                    {
-                        std::cout<<"----------------Doing Preferred Move--------------"<<std::endl;
-                        this->best_move=preferred_move;
-                        return;
-                    }
-                }
-            }
-        }
-
+        auto start_time=std::chrono::high_resolution_clock::now();
         Board* temp_b=b.copy();
-        int max_depth=3;
-        auto ans=minimax(temp_b,max_depth,start_time,b.data.player_to_play);
+        auto ans=minimax(temp_b,4,start_time,b.data.player_to_play);
         delete temp_b;
-        this->best_move=ans[ans.size()-1].second;
-
-        // if(preferred_move==0)
+        
+        // for(auto temp:ans)
         // {
-        //     for(auto p:ans)
-        //     {
-        //         std::cout<<"Value="<<p.first<<" "<<"Move="<<move_to_str(p.second)<<std::endl;
-        //     }
-        //     std::cout<<"selected move = "<<move_to_str(this->best_move)<<std::endl;
-        //     // exit(0);
+        //     std::cout<<"Move = "<<temp.second<<"   Value = "<<temp.first.val1<<std::endl;
         // }
+        
+        //can break ties based on number of moves
+        if(preferred_move!=0)
+        {
+            int best_val=ans[ans.size()-1].first.val1;
+            for(int x=ans.size()-1;x>=0;x--)
+            {
+                if(ans[x].first.val1==best_val && ans[x].second==preferred_move)
+                {
+                    std::cout<<"Doing Preferred Move\n"<<std::endl;
+                    this->best_move=preferred_move;
+                    return;
+                }
+            }
+        }
+        this->best_move=ans[ans.size()-1].second;
     }
+
 }
