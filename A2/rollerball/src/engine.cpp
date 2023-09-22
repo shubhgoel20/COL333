@@ -64,16 +64,44 @@ constexpr U8 id[64] = {
 #define cw_180_move(p) move_promo(cw_180[getp0(m)], cw_180[getp1(m)], getpromo(m))
 #define color(p) ((PlayerColor)(p & (WHITE | BLACK)))
 
-
-void undo_last_move(U16 move, Board* board)
+//
+std::pair<U8,int> killed_piece(Board* board, U16 move)  //returns piece killed and its idx, by the specified move
 {
-    
+    U8 p1 = getp1(move);
+    U8 last_killed_piece=0;
+    int last_killed_piece_idx=-1;
+
+    // scan and get piece from coord
+    U8 *pieces = (U8*)board;
+    for (int i=0; i<12; i++) {
+        if (pieces[i] == p1) 
+        {
+            last_killed_piece = board->data.board_0[p1];
+            last_killed_piece_idx = i;
+            break;
+        }
+    }
+    return std::pair<U8,int>(last_killed_piece,last_killed_piece_idx);
+}
+
+
+void undo_last_move(Board* board, U16 move, U8 last_killed_piece=0, int last_killed_piece_idx=-1) {
+
+    if(last_killed_piece_idx==-1)
+    {
+        // std::cout<<"Default Undo move"<<std::endl;
+        last_killed_piece_idx=board->data.last_killed_piece_idx;
+        last_killed_piece=board->data.last_killed_piece;
+    }
+    // else
+    //     std::cout<<"New Undo Move"<<std::endl;
+
     U8 p0 = getp0(move);
     U8 p1 = getp1(move);
     U8 promo = getpromo(move);
 
     U8 piecetype = board->data.board_0[p1];
-    U8 deadpiece = board->data.last_killed_piece;
+    U8 deadpiece = last_killed_piece;
     board->data.last_killed_piece = 0;
 
     // scan and get piece from coord
@@ -84,8 +112,8 @@ void undo_last_move(U16 move, Board* board)
             break;
         }
     }
-    if (board->data.last_killed_piece_idx >= 0) {
-        pieces[board->data.last_killed_piece_idx] = p1;
+    if (last_killed_piece_idx >= 0) {
+        pieces[last_killed_piece_idx] = p1;
         board->data.last_killed_piece_idx = -1;
     }
 
@@ -105,11 +133,11 @@ void undo_last_move(U16 move, Board* board)
     board->data.board_90[cw_90[p1]]   = deadpiece;
     board->data.board_180[cw_180[p1]] = deadpiece;
     board->data.board_270[acw_90[p1]] = deadpiece;
-
 }
 
 
-bool time_check(std::chrono::high_resolution_clock::time_point start_time){
+
+bool time_check(std::chrono::high_resolution_clock::time_point& start_time){
     auto cur_time=std::chrono::high_resolution_clock::now();
     auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(cur_time-start_time);
     if(duration.count()>1900)
@@ -190,87 +218,86 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
 
 }
 
-int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point start_time,PlayerColor my_col);
+int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col);
 
-int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point start_time,PlayerColor my_col)
+int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
-    if(curr_depth==0  || time_check(start_time)==0)
+    if(curr_depth<=0  || time_check(start_time)==0)
     {
         return evaluation_func(b,my_col);
     }
     auto moveset=b->get_legal_moves();
-    Board* temp_board=b->copy();
-    std::vector<std::pair<int,U16>> moveset_ordered;
+    // Board* temp_board=b->copy();
+    // std::vector<std::pair<int,U16>> moveset_ordered;
+    // for(auto move:moveset)
+    // {
+    //     b->do_move(move);
+    //     moveset_ordered.push_back(std::pair<int,U16>(evaluation_func(b,my_col),move));
+    //     undo_last_move(b,move);
+    // }
+    // sort(moveset_ordered.begin(),moveset_ordered.end());
+    // reverse(moveset_ordered.begin(),moveset_ordered.end());
     for(auto move:moveset)
     {
-        temp_board->do_move(move);
-        moveset_ordered.push_back(std::pair<int,U16>(evaluation_func(temp_board,my_col),move));
-        undo_last_move(move,temp_board);
-    }
-    delete temp_board;
-    sort(moveset_ordered.begin(),moveset_ordered.end());
-    reverse(moveset_ordered.begin(),moveset_ordered.end());
-    for(auto p:moveset_ordered)
-    {
-        U16 move=p.second;
-        temp_board=b->copy();
-        temp_board->do_move(move);
-        alpha=std::max(alpha,minval(temp_board,curr_depth-1,alpha,beta,start_time,my_col));
-        delete temp_board;
+        // U16 move=p.second;
+        // temp_board=b->copy();
+        std::pair<U8,int> killed=killed_piece(b,move);
+        b->do_move(move);
+        alpha=std::max(alpha,minval(b,curr_depth-1,alpha,beta,start_time,my_col));
+        undo_last_move(b,move,killed.first,killed.second);
+        // delete temp_board;
         if(alpha>=beta)
-            return alpha;
+            break;
     }
     return alpha;
 }
 
-int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point start_time,PlayerColor my_col)
+int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
-    if(curr_depth==0 || time_check(start_time)==0)
+    if(curr_depth<=0 || time_check(start_time)==0)
     {
         return evaluation_func(b,my_col);
     }
     auto moveset=b->get_legal_moves();
 
-    Board* temp_board=b->copy();
-    std::vector<std::pair<int,U16>> moveset_ordered;
+    // Board* temp_board=b->copy();
+    // std::vector<std::pair<int,U16>> moveset_ordered;
+    // for(auto move:moveset)
+    // {
+    //     b->do_move(move);
+    //     moveset_ordered.push_back(std::pair<int,U16>(evaluation_func(b,my_col),move));
+    //     undo_last_move(b,move);
+    // }
+    // delete temp_board;
+    // sort(moveset_ordered.begin(),moveset_ordered.end());
+
     for(auto move:moveset)
     {
-        temp_board->do_move(move);
-        moveset_ordered.push_back(std::pair<int,U16>(evaluation_func(temp_board,my_col),move));
-        undo_last_move(move,temp_board);
-    }
-    delete temp_board;
-    sort(moveset_ordered.begin(),moveset_ordered.end());
-
-    for(auto p:moveset_ordered)
-    {
-        U16 move=p.second;
-        temp_board=b->copy();
-        temp_board->do_move(move);
-        beta=std::min(beta,maxval(temp_board,curr_depth-1,alpha,beta,start_time,my_col));
-        delete temp_board;
+        // U16 move=p.second;
+        // temp_board=b->copy();
+        std::pair<U8,int> killed=killed_piece(b,move);
+        b->do_move(move);
+        beta=std::min(beta,maxval(b,curr_depth-1,alpha,beta,start_time,my_col));
+        undo_last_move(b,move,killed.first,killed.second);
+        // delete temp_board;
         if(alpha>=beta)
-            return beta;
+            break;
     }
     return beta;
 }
 
-std::vector<std::pair<int,U16>> minimax(Board *b, int curr_depth,std::chrono::high_resolution_clock::time_point start_time,PlayerColor my_col, std::atomic<U16>& best_move)
+std::vector<std::pair<int,U16>> minimax(Board *b, int curr_depth,std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col)
 {
     std::vector<std::pair<int,U16>> ans;
     auto moveset=b->get_legal_moves();
-    int max_val=INT_MIN;
     for(auto move : moveset)
     {
-        Board * temp_board=b->copy();
-        temp_board->do_move(move);
-        int val = minval(temp_board,curr_depth-1,-1*INTMAX,INTMAX,start_time,my_col);
-        delete temp_board;
-        if(val>max_val)
-        {
-            best_move=move;
-            max_val=val;
-        }
+        // Board * temp_board=b->copy();
+        std::pair<U8,int> killed=killed_piece(b,move);
+        b->do_move(move);
+        int val = minval(b,curr_depth-1,-1*INTMAX,INTMAX,start_time,my_col);
+        undo_last_move(b,move,killed.first,killed.second);
+        // delete temp_board;        
         ans.push_back(std::pair<int,U16>(val,move));
     }
     sort(ans.begin(),ans.end());
@@ -279,67 +306,67 @@ std::vector<std::pair<int,U16>> minimax(Board *b, int curr_depth,std::chrono::hi
 
 
 
-void test2(Board * board)
-{
-    auto moveset = board->get_legal_moves();
-    for(auto move:moveset)
-    {
-        // std::cout<<"----------------Doing New Move---------------"<<std::endl;
-        std::string s1=board_to_str(board->data.board_0);
-        board->do_move(move);
-        std::string s2=board_to_str(board->data.board_0);
-        undo_last_move(move,board);
-        std::string s3=board_to_str(board->data.board_0);
-        if(s1==s2)
-        {    
-            std::cout<<"Do failed as s1==s2, move = "<<move<<std::endl;
-            exit(0);
-        }
-        else if(s2==s3)
-        {
-            std::cout<<"undo failed as s2==s3, move = "<<move<<std::endl;
-            exit(0);
-        }
-        if(!(s1==s3))
-        {
-            std::cout<<"Undo failed as s1!=s3, move = "<<move<<std::endl;   
-            exit(0);
-        }
-    }
-}
+// void test2(Board * board)
+// {
+//     auto moveset = board->get_legal_moves();
+//     for(auto move:moveset)
+//     {
+//         // std::cout<<"----------------Doing New Move---------------"<<std::endl;
+//         std::string s1=board_to_str(board->data.board_0);
+//         board->do_move(move);
+//         std::string s2=board_to_str(board->data.board_0);
+//         undo_last_move(move,board);
+//         std::string s3=board_to_str(board->data.board_0);
+//         if(s1==s2)
+//         {    
+//             std::cout<<"Do failed as s1==s2, move = "<<move<<std::endl;
+//             exit(0);
+//         }
+//         else if(s2==s3)
+//         {
+//             std::cout<<"undo failed as s2==s3, move = "<<move<<std::endl;
+//             exit(0);
+//         }
+//         if(!(s1==s3))
+//         {
+//             std::cout<<"Undo failed as s1!=s3, move = "<<move<<std::endl;   
+//             exit(0);
+//         }
+//     }
+// }
 
-void test(Board * board)
-{
-    auto moveset = board->get_legal_moves();
-    for(auto move:moveset)
-    {
-        // std::cout<<"----------------Doing New Move---------------"<<std::endl;
-        // std::string s1=all_boards_to_str(*board);
-        std::string s1=board_to_str(board->data.board_0);
-        board->do_move(move);
-        std::string s2=board_to_str(board->data.board_0);
-        // Board * temp=board->copy();
-        test2(board);
-        // delete temp;
-        undo_last_move(move,board);
-        std::string s3=board_to_str(board->data.board_0);
-        if(s1==s2)
-        {    
-            std::cout<<"Do failed as s1==s2, move = "<<move<<std::endl;
-            exit(0);
-        }
-        else if(s2==s3)
-        {
-            std::cout<<"undo failed as s2==s3, move = "<<move<<std::endl;
-            exit(0);
-        }
-        if(!(s1==s3))
-        {
-            std::cout<<"Undo failed as s1!=s3, move = "<<move<<std::endl;   
-            exit(0);
-        }
-    }
-}
+// void test(Board * board)
+// {
+//     auto moveset = board->get_legal_moves();
+//     for(auto move:moveset)
+//     {
+//         // std::cout<<"----------------Doing New Move---------------"<<std::endl;
+//         // std::string s1=all_boards_to_str(*board);
+//         std::string s1=board_to_str(board->data.board_0);
+//         board->do_move(move);
+//         std::string s2=board_to_str(board->data.board_0);
+//         // Board * temp=board->copy();
+//         test2(board);
+//         // delete temp;
+//         undo_last_move(move,board);
+//         std::string s3=board_to_str(board->data.board_0);
+//         if(s1==s2)
+//         {    
+//             std::cout<<"Do failed as s1==s2, move = "<<move<<std::endl;
+//             exit(0);
+//         }
+//         else if(s2==s3)
+//         {
+//             std::cout<<"undo failed as s2==s3, move = "<<move<<std::endl;
+//             exit(0);
+//         }
+//         if(!(s1==s3))
+//         {
+//             std::cout<<"Undo failed as s1!=s3, move = "<<move<<std::endl;   
+//             exit(0);
+//         }
+//     }
+// }
 
 
 
@@ -363,9 +390,14 @@ void Engine::find_best_move(const Board& b)
 
         auto start_time=std::chrono::high_resolution_clock::now();
         Board* temp_b=b.copy();
-        auto ans=minimax(temp_b,3,start_time,b.data.player_to_play,this->best_move);
+        std::string s1=all_boards_to_str(*temp_b);
+        auto ans=minimax(temp_b,4,start_time,b.data.player_to_play);
+        std::string s2=all_boards_to_str(*temp_b);
         delete temp_b;
-
+        if(s1==s2)
+            std::cout<<"PASS"<<std::endl;
+        else
+            std::cout<<"FAILED"<<std::endl;
         this->best_move=ans[ans.size()-1].second;
         
         // std::cout<<"-----Processing Done-------"<<std::endl;
