@@ -5,11 +5,11 @@
 #include <climits>
 #include <map>
 #include <assert.h>
-
+#include <queue>
+#include <unordered_map>
 #include "board.hpp"
 #include "engine.hpp"
 
-#define WT_MULTIPLIER 1000
 
 bool time_check(std::chrono::high_resolution_clock::time_point& start_time){
     auto cur_time=std::chrono::high_resolution_clock::now();
@@ -22,12 +22,41 @@ bool time_check(std::chrono::high_resolution_clock::time_point& start_time){
     return 1;
 }
 
+inline int weight(U8 piece)
+{
+    int wt_multiplier=1000;
+    if(piece & KING)    return 2*wt_multiplier;
+    else if(piece & BISHOP) return 4*wt_multiplier;
+    else if(piece & ROOK)   return 3*wt_multiplier;
+    else if(piece & PAWN)   return 2*wt_multiplier;
+    else return 0;
+}
+
+inline int threat_weight(U8 piece)
+{
+    int wt_multiplier=5;
+    if(piece & KING)    return 2*wt_multiplier;
+    else if(piece & BISHOP) return 4*wt_multiplier;
+    else if(piece & ROOK)   return 3*wt_multiplier;
+    else if(piece & PAWN)   return 2*wt_multiplier;
+    else return 0;
+}
+
+
 int evaluation_func(Board* board_copy,PlayerColor my_col)
 {
-    // int mult1=20000,mult2=500,mult3=1;
-    int w_king=7*WT_MULTIPLIER,w_bishop=5*WT_MULTIPLIER,w_rook=3*WT_MULTIPLIER,w_pawn=1*WT_MULTIPLIER;    
-    // int w_threat_bishop=3,w_threat_rook=2,w_threats_pawn=1;
     int w_moves=1;    
+
+    int weights[7][7]={
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+        {1,0,1,0,1,0,1},
+    };
+
 
     PlayerColor curr_col=board_copy->data.player_to_play;
     std::unordered_set<U16> moveset[2];     //0-WHITE, 1-BLACK
@@ -41,9 +70,6 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
     
     BoardData *d = &(board_copy->data);
 
-
-
-
     if( ( (curr_col==WHITE && moveset[0].size()==0) || (curr_col==BLACK && moveset[1].size()==0) )  && board_copy->in_check())  //checkmate
     {
         if(curr_col==my_col)
@@ -52,9 +78,6 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
             return INT_MAX;
 
     }
-    //  In stalement points pieces alive can determine the points obtained
-    // else if( (curr_col==WHITE && moveset[0].size()==0) || (curr_col==BLACK && moveset[1].size()==0) )  //stalemate
-    //     return Value(0,0,0);
     
     U8 black_pawn_1= (d->b_pawn_bs!=DEAD) ? d->board_0[d->b_pawn_bs] : 0;
     U8 black_pawn_2= (d->b_pawn_ws!=DEAD) ? d->board_0[d->b_pawn_ws] : 0;
@@ -64,68 +87,52 @@ int evaluation_func(Board* board_copy,PlayerColor my_col)
     int num_rooks[2]={0};
     int num_bishops[2]={0};
     int num_pawns[2]={0};
-    num_rooks[0]=(d->w_rook_bs!=DEAD) + (d->w_rook_ws!=DEAD) + ((white_pawn_1 & ROOK)!=0) + ((white_pawn_2 & ROOK)!=0);
-    num_rooks[1]=(d->b_rook_bs!=DEAD) + (d->b_rook_ws!=DEAD) + ((black_pawn_1 & ROOK)!=0) + ((black_pawn_2 & ROOK)!=0);
-    num_bishops[0]=(d->w_bishop!=DEAD) + ((white_pawn_1 & BISHOP)!=0) + ((white_pawn_2 & BISHOP)!=0);
-    num_bishops[1]=(d->b_bishop!=DEAD) + ((black_pawn_1 & BISHOP)!=0) + ((black_pawn_2 & BISHOP)!=0);
+
+    //promotion to rook is favoured over promotion to pawn
+    num_rooks[0]=(d->w_rook_bs!=DEAD) + (d->w_rook_ws!=DEAD) + ((white_pawn_2 & BISHOP)!=0);
+    num_rooks[1]=(d->b_rook_bs!=DEAD) + (d->b_rook_ws!=DEAD) + ((black_pawn_2 & BISHOP)!=0);
+
+    num_bishops[0]=(d->w_bishop!=DEAD) + ((white_pawn_1 & BISHOP)!=0) + ((white_pawn_1 & ROOK)!=0) + ((white_pawn_2 & ROOK)!=0);
+    num_bishops[1]=(d->b_bishop!=DEAD) + ((black_pawn_1 & BISHOP)!=0) + ((black_pawn_1 & ROOK)!=0) + ((black_pawn_2 & ROOK)!=0);
+
     num_pawns[0]=((white_pawn_1 & PAWN)!=0) + ((white_pawn_2 & PAWN)!=0);
     num_pawns[1]=((black_pawn_1 & PAWN)!=0) + ((black_pawn_2 & PAWN)!=0);
 
-
-    //threat calculation
-    // int threat_pawns[2]={0};
-    // int threat_rooks[2]={0};
-    // int threat_bishops[2]={0};
-    // for(int i=0;i<2;i++)
-    // {
-    //     for(auto move:moveset[1-i])
-    //     {
-    //         U8 position=getp1(move);           
-    //         U8 piecetype=board_copy->data.board_0[position];
-    //         if(piecetype!=EMPTY)
-    //         {
-    //             if(piecetype & PAWN)            threat_pawns[i]+=1;
-    //             else if(piecetype & ROOK)       threat_rooks[i]+=1;
-    //             else if(piecetype & BISHOP)     threat_bishops[i]+=1;
-    //         }
-    //     }
-    // }
-
-
-
     int evaluation=0;
     
-    evaluation+=(num_rooks[0]-num_rooks[1])*w_rook;
-    evaluation+=(num_bishops[0]-num_bishops[1])*w_bishop;
-    evaluation+=(num_pawns[0]-num_pawns[1])*w_pawn;
+    evaluation+=(num_rooks[0]-num_rooks[1])*weight(ROOK);
+    evaluation+=(num_bishops[0]-num_bishops[1])*weight(BISHOP);
+    evaluation+=(num_pawns[0]-num_pawns[1])*weight(PAWN);
+    evaluation+=(moveset[0].size()-moveset[1].size())*w_moves;
 
-    // evaluation+=(threat_bishops[0]-threat_bishops[1])*w_threat_bishop;
-    // evaluation+=(threat_rooks[0]-threat_rooks[1])*w_threat_rook;
-    // evaluation+=(threat_pawns[0]-threat_pawns[1])*w_threats_pawn;
-    
-    // evaluation+=(moveset[0].size()-moveset[1].size())*w_moves;
-    
+    int black_wt=0,white_wt=0;
+    // if(board_copy->data.b_bishop!=DEAD)
+    //     white_wt=1;
+    // if(board_copy->data.w_bishop!=DEAD)
+    //     black_wt=1;
+
+    U8 *pieces = (U8*)board_copy;
+    for (int i=0; i<12; i++) {
+        U8 position = pieces[i];
+        if(position==DEAD)  continue;
+        U8 piece = board_copy->data.board_0[position];
+        if(piece & WHITE)
+            evaluation+=weights[getx(position)][gety(position)]*threat_weight(piece)*white_wt;
+        else
+            evaluation+=weights[getx(position)][gety(position)]*threat_weight(piece)*black_wt;
+    }
+   
     if(my_col==BLACK)
     {
         evaluation=-evaluation;
     }
 
     if(my_col==curr_col)
-        evaluation -= w_king*(board_copy->in_check());
+        evaluation -= weight(KING)*(board_copy->in_check());
     else
-        evaluation += w_king*(board_copy->in_check());
+        evaluation += weight(KING)*(board_copy->in_check());
 
-    //now can also add weight of pieces in threat
-    // if(count>=3)
-    // {
-        // std::cout<<"YAY Parinting"<<std::endl;
-        // std::cout<<"Pawns = "<<num_pawns[0]<<","<<num_pawns[1]<<std::endl;
-        // std::cout<<"Rooks = "<<num_rooks[0]<<","<<num_rooks[1]<<std::endl;
-        // std::cout<<"Bishops = "<<num_bishops[0]<<","<<num_bishops[1]<<std::endl;
-        // std::cout<<"Moves = "<<moveset[0].size()<<","<<moveset[1].size()<<std::endl;
-    // }
-    return (evaluation+(moveset[0].size()-moveset[1].size())*w_moves);      
-
+    return (evaluation);      
 }
 
 int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_resolution_clock::time_point& start_time,PlayerColor my_col);
@@ -135,7 +142,7 @@ int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_reso
     if(curr_depth<=0  || time_check(start_time)==0)
     {
         int temp=evaluation_func(b,my_col);
-        std::cout<<"MAXVAL Output = "<<temp<<std::endl;
+        // std::cout<<"MAXVAL Output = "<<temp<<std::endl;
         return temp;
     }   
 
@@ -143,6 +150,7 @@ int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_reso
     int ans=INT_MIN;
     for(auto move:moveset)
     {
+        if(time_check(start_time)==0)   break;
         Board* temp_b=b->copy();
         temp_b->do_move(move);
         int temp_ans=minval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
@@ -152,7 +160,7 @@ int maxval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_reso
         if(alpha>=beta)
             break;
     }
-    std::cout<<"MAXVAL Output = "<<ans<<std::endl;
+    // std::cout<<"MAXVAL Output = "<<ans<<std::endl;
     return ans;
 }
 
@@ -161,13 +169,14 @@ int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_reso
     if(curr_depth<=0 || time_check(start_time)==0)
     {
         int temp=evaluation_func(b,my_col);
-        std::cout<<"MINVAL Output = "<<temp<<std::endl;
+        // std::cout<<"MINVAL Output = "<<temp<<std::endl;
         return temp;
     }
     auto moveset=b->get_legal_moves();
     int ans=INT_MAX;
     for(auto move:moveset)
     {
+        if(time_check(start_time)==0)   break;
         Board* temp_b=b->copy();
         temp_b->do_move(move);
         int temp_ans=maxval(temp_b,curr_depth-1,alpha,beta,start_time,my_col);
@@ -177,7 +186,7 @@ int minval(Board *b, int curr_depth, int alpha, int beta, std::chrono::high_reso
         if(alpha>=beta)
             break;
     }
-    std::cout<<"MINVAL Output = "<<ans<<std::endl;
+    // std::cout<<"MINVAL Output = "<<ans<<std::endl;
     return ans;
 }
 
@@ -197,6 +206,83 @@ std::vector<std::pair<int,U16>> minimax(Board *b, int curr_depth,std::chrono::hi
     return ans;
 }
 
+#define MOVE_PAIR std::pair<std::pair<int,int>,std::pair<U16,U16>>
+
+struct PQ_Comparator
+{
+    bool operator()(MOVE_PAIR& p1, MOVE_PAIR& p2)
+    {
+        std::pair<int,int> &val1=p1.first;
+        std::pair<int,int> &val2=p2.first;
+
+        if(val1.first<val2.first)   return true;
+        else if(val1.first>val2.first)  return false;
+        else return val1.second>val2.second;
+    }
+};
+
+bool compare_func(MOVE_PAIR& p1, MOVE_PAIR& p2)
+{
+    std::pair<int,int> &val1=p1.first;
+    std::pair<int,int> &val2=p2.first;
+
+    if(val1.first<val2.first)   return true;
+    else if(val1.first>val2.first)  return false;
+    else return val1.second>val2.second;
+}
+
+std::vector<MOVE_PAIR> evaluate_depth_2(Board *b,std::chrono::high_resolution_clock::time_point& start_time)
+{
+    std::vector<MOVE_PAIR> ans;
+    std::unordered_set<U16> moveset1,moveset2;
+    Board *board1,*board2;
+
+    moveset1=b->get_legal_moves();
+    for(auto move1:moveset1)
+    {   
+        board1=b->copy();
+        board1->do_move(move1);
+    
+        moveset2=board1->get_legal_moves();
+        int max_val=INT_MIN;
+        int start=ans.size();   //start inclusive
+        int end=ans.size();     //end not inclusive
+        for(auto move2:moveset2)
+        {
+            if(time_check(start_time)==0)
+            {
+                delete board1;
+                while(start<end)
+                {
+                    ans[start].first.first=max_val;
+                    start++;
+                }
+                return ans;
+            }
+
+
+            board2=board1->copy();
+            board2->do_move(move2);
+            int value=evaluation_func(board2,b->data.player_to_play);
+            if(value>max_val)   max_val=value;
+            delete board2;
+            ans.push_back(MOVE_PAIR(std::pair<int,int>(0,value),std::pair<U16,U16>(move1,move2)));
+            end++;
+        }
+        if(start==end && board1->in_check())  //moveset 2 was empty
+            ans.push_back(MOVE_PAIR(std::pair<int,int>(INT_MAX,0),std::pair<U16,U16>(move1,0)));
+        else if(start==end)
+            ans.push_back(MOVE_PAIR(std::pair<int,int>(0,0),std::pair<U16,U16>(move1,0)));
+        while(start<end)
+        {
+            ans[start].first.first=max_val;
+            start++;
+        }
+        delete board1;
+    }
+    return ans;
+}
+
 void Engine::find_best_move(const Board& b) 
 {
     static int counter=-1;
@@ -208,7 +294,8 @@ void Engine::find_best_move(const Board& b)
     }
     else
     {
-        int opening=1;
+        this->best_move=*(moveset.begin());
+        bool opening=1;
         if(b.data.player_to_play==BLACK)
         {
             if(b.data.b_bishop==DEAD || b.data.b_rook_bs==DEAD || b.data.b_rook_ws==DEAD || b.data.b_pawn_bs==DEAD || b.data.b_pawn_ws==DEAD || b.in_check())
@@ -220,22 +307,25 @@ void Engine::find_best_move(const Board& b)
                 opening=0;
         }
         counter++;
-        if(opening)
+        if(counter<=5 && opening)
         {
+            if(counter>=5)
+                opening=0;
             U16 preferred_move=0;
             if(b.data.player_to_play==WHITE)
             {
                 switch(counter)
                 {
-                    case 0: preferred_move=move(pos(4,1),pos(5,1));
-                    break;
-                    case 1: preferred_move=move(pos(3,0),pos(4,1));
-                    break;
-                    case 2: preferred_move=move(pos(2,0),pos(1,1));
-                    break;
-                    case 3: preferred_move=move(pos(4,0),pos(0,0));
-                    break;
-                    case 4: preferred_move=move(pos(5,1),pos(5,0));
+                    case 0: preferred_move=move(pos(4,0),pos(5,0)); break;
+                    case 1: preferred_move=move(pos(4,1),pos(4,0)); break;
+                    case 2: preferred_move=move(pos(2,1),pos(1,1)); break;
+                    case 3: preferred_move=move(pos(1,1),pos(0,2)); break;
+                    case 4: preferred_move=move(pos(2,0),pos(1,1)); break;
+                    case 5: 
+                    if(b.data.board_0[pos(0,4)]==EMPTY)
+                        preferred_move=move(pos(3,0),pos(0,3));
+                    else
+                        preferred_move=move(pos(3,0),pos(1,2));
                     break;
                 }
             }
@@ -243,15 +333,16 @@ void Engine::find_best_move(const Board& b)
             {
                 switch(counter)
                 {
-                    case 0: preferred_move=move(pos(2,5),pos(1,5));
-                    break;
-                    case 1: preferred_move=move(pos(3,6),pos(2,5));
-                    break;
-                    case 2: preferred_move=move(pos(4,6),pos(5,5));
-                    break;
-                    case 3: preferred_move=move(pos(2,6),pos(6,6));
-                    break;
-                    case 4: preferred_move=move(pos(1,5),pos(1,6));
+                    case 0: preferred_move=move(pos(2,6),pos(1,6)); break;
+                    case 1: preferred_move=move(pos(2,5),pos(2,6)); break;
+                    case 2: preferred_move=move(pos(4,5),pos(5,5)); break;
+                    case 3: preferred_move=move(pos(5,5),pos(6,4)); break;
+                    case 4: preferred_move=move(pos(4,6),pos(5,5)); break;
+                    case 5: 
+                    if(b.data.board_0[pos(6,2)]==EMPTY)
+                        preferred_move=move(pos(3,6),pos(6,3));
+                    else
+                        preferred_move=move(pos(3,6),pos(5,4));
                     break;
                 }
             }
@@ -262,19 +353,109 @@ void Engine::find_best_move(const Board& b)
                 {
                     if(preferred_move==move)
                     {
-                        std::cout<<"----------------Doing Preferred Move--------------"<<std::endl;
+                        // std::cout<<"----------------Doing Preferred Move--------------"<<std::endl;
                         this->best_move=preferred_move;
                         return;
                     }
                 }
             }
+            
         }
 
+        // int num_powerful_pieces=(b.data.b_bishop!=DEAD) + ;
+
+
         Board* temp_b=b.copy();
-        int max_depth=3;
+        int max_depth=2;
         auto ans=minimax(temp_b,max_depth,start_time,b.data.player_to_play);
         delete temp_b;
         this->best_move=ans[ans.size()-1].second;
+        // auto ans=evaluate_depth_2(temp_b,start_time);
+        
+        // sort(ans.begin(),ans.end(),compare_func);
+        
+        // if(ans[0].first.first==INT_MAX) //checkmate move
+        //     this->best_move=ans[0].second.first;
+        // else if(time_check(start_time))
+        // {
+        //     unsigned long int x=0;
+        //     int max_val=INT_MIN;
+            
+        //     while(x<ans.size() && time_check(start_time))            
+        //     {
+        //         U16 first_move=ans[x].second.first;
+        //         unsigned long int y=x;
+        //         int min_val=INT_MAX;
+        //         while(y<ans.size() && ans[y].second.first==first_move && time_check(start_time))
+        //         {
+        //             temp_b=b.copy();
+        //             temp_b->do_move(first_move);
+        //             temp_b->do_move(ans[y].second.second);
+        //             int curr_val=maxval(temp_b,2,INT_MIN,INT_MAX,start_time,b.data.player_to_play);
+        //             if(curr_val<min_val)
+        //             {
+        //                 min_val=curr_val;
+        //             }
+        //             y++;
+        //         }
+        //         if(min_val>=max_val)
+        //         {
+        //             max_val=min_val;
+        //             this->best_move=first_move;
+        //         }
+        //         x=y;
+        //     }
+        // }
+        // else
+        // {
+            // this->best_move=ans[0].second.first;
+        // }
+
+        // if(time_check(start_time))
+        // {
+        //     int max_val=INT_MIN;
+        //     long unsigned int begin=0;            
+        //     long unsigned int x;
+        //     for(x=0;x<ans.size()-1;x++)
+        //     {
+        //         temp_b=b.copy();
+        //         temp_b->do_move(ans[x].second.first);
+        //         temp_b->do_move(ans[x].second.second);
+        //         int curr_val=maxval(temp_b,2,INT_MIN,INT_MAX,start_time,b.data.player_to_play);
+        //         delete temp_b;
+        //         ans[x].first.second=curr_val;
+        //         if(curr_val>max_val)    max_val=curr_val;
+        //         if(ans[x].second.first != ans[x+1].second.second)
+        //         {
+        //             for(long unsigned int y=begin;y<=x;y++)
+        //             {
+        //                 ans[y].first.first=max_val;
+        //             }                        
+        //             begin=x+1;
+        //             max_val=INT_MIN;
+        //         }               
+        //         if(time_check(start_time)==0)
+        //         {
+        //             break;
+        //         }
+        //     }
+        //     for(long unsigned int y=begin;y<=x;y++)
+        //     {
+        //         ans[y].first.first=max_val;
+        //     }                        
+        //     sort(ans.begin(),ans.begin()+x,compare_func);
+        // }   
+        
+        // this->best_move=ans[0].second.first;
+        // this->best_move=ans[0].second.first;
+        // int x;
+        // for(x=ans.size()-1;x>=0;x--)
+        // {
+        //     temp_b=b.copy();
+        //     temp_b->do_move(ans[x].second);
+        //     if(temp_b->in_check())
+        // }
+        // this->best_move=ans[ans.size()-1].second;
 
         // if(preferred_move==0)
         // {
@@ -282,7 +463,8 @@ void Engine::find_best_move(const Board& b)
         //     {
         //         std::cout<<"Value="<<p.first<<" "<<"Move="<<move_to_str(p.second)<<std::endl;
         //     }
-        //     std::cout<<"selected move = "<<move_to_str(this->best_move)<<std::endl;
+        // std::cout<<"Hello World"<<std::endl;
+        // std::cout<<"selected move = "<<move_to_str(this->best_move)<<"   Value = "<<ans[ans.size()-1].first<<std::endl;
         //     // exit(0);
         // }
     }
