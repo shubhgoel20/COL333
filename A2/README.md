@@ -12,5 +12,5 @@ Launching the Bot:
 ```
 cd rollerball
 make rollerball
-./ bin / rollerball -p 8181
+./bin/rollerball -p 8181
 ```
