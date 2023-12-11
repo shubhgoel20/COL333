@@ -7,8 +7,8 @@ Launching GUI:
 ```
 cd rollerball/web
 python3 -m http . server 8080
-Launching the Bot:
 ```
+Launching the Bot:
 ```
 cd rollerball
 make rollerball
