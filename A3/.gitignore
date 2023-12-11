@@ -1,0 +1,7 @@
+.vscode/*
+exe/*
+*.graph
+*.txt
+*.satinput
+*.satoutput
+*.mapping
