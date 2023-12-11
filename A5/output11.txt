@@ -1,0 +1,153 @@
+[2023-11-12 03:27:15] [connect] WebSocket Connection [::1]:57678 v13 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" / 101
+In method on_uci
+[2023-11-12 03:27:15] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 5 payload bytes
+[2023-11-12 03:27:15] [frame_header] Header Bytes: 
+[0] (2) 81 05 
+
+[2023-11-12 03:27:15] [frame_payload] Payload Bytes: 
+[0] (5) [1] uciok
+
+In method on_ucinewgame
+[2023-11-12 03:27:16] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 9 payload bytes
+[2023-11-12 03:27:16] [frame_header] Header Bytes: 
+[0] (2) 81 09 
+
+[2023-11-12 03:27:16] [frame_payload] Payload Bytes: 
+[0] (9) [1] newgameok
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 8004
+Found searches = 1177
+Found searches in old map = 0
+Time taken = 376 ms
+Current Map size = 3436
+Previous Map size = 0
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:16] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:16] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:16] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e7f6
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 22163
+Found searches = 2465
+Found searches in old map = 14
+Time taken = 1131 ms
+Current Map size = 8570
+Previous Map size = 3436
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:17] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:17] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:17] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6f5
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 13787
+Found searches = 1736
+Found searches in old map = 76
+Time taken = 739 ms
+Current Map size = 5413
+Previous Map size = 8570
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:18] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:18] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:18] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 56315
+Found searches = 6480
+Found searches in old map = 100
+Time taken = 2747 ms
+Current Map size = 16045
+Previous Map size = 5413
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:21] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:21] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:21] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove c7g2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 37379
+Found searches = 3368
+Found searches in old map = 49
+Time taken = 1800 ms
+Current Map size = 11431
+Previous Map size = 16045
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:22] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:22] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:22] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g2f2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 14017
+Found searches = 1684
+Found searches in old map = 27
+Time taken = 602 ms
+Current Map size = 4621
+Previous Map size = 11431
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:23] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:23] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:23] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f2g2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 23121
+Found searches = 2278
+Found searches in old map = 83
+Time taken = 1096 ms
+Current Map size = 7758
+Previous Map size = 4621
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:24] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:24] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:24] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g2f2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 2769
+Found searches = 134
+Found searches in old map = 19
+Time taken = 117 ms
+Current Map size = 1170
+Previous Map size = 7758
+---------------------------------------------------------------------------------------------
+[2023-11-12 03:27:24] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-12 03:27:24] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-12 03:27:24] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f2g2
+

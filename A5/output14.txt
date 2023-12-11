@@ -1,0 +1,161 @@
+[2023-11-16 21:44:38] [connect] WebSocket Connection [::1]:55554 v13 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" / 101
+In method on_uci
+[2023-11-16 21:44:38] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 5 payload bytes
+[2023-11-16 21:44:38] [frame_header] Header Bytes: 
+[0] (2) 81 05 
+
+[2023-11-16 21:44:38] [frame_payload] Payload Bytes: 
+[0] (5) [1] uciok
+
+In method on_ucinewgame
+[2023-11-16 21:44:39] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 9 payload bytes
+[2023-11-16 21:44:39] [frame_header] Header Bytes: 
+[0] (2) 81 09 
+
+[2023-11-16 21:44:39] [frame_payload] Payload Bytes: 
+[0] (9) [1] newgameok
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 4634
+Found searches = 344
+Found searches in old map = 0
+Time taken = 343 ms
+Current Map size = 1737
+Previous Map size = 0
+Evaluation func call Count = 1632
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:39] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:39] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:39] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e7f6
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 4248
+Found searches = 429
+Found searches in old map = 30
+Time taken = 273 ms
+Current Map size = 1613
+Previous Map size = 1737
+Evaluation func call Count = 1453
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:39] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:39] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:39] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6f5
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 4014
+Found searches = 375
+Found searches in old map = 41
+Time taken = 269 ms
+Current Map size = 1409
+Previous Map size = 1613
+Evaluation func call Count = 1210
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:40] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:40] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:40] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 3454
+Found searches = 275
+Found searches in old map = 105
+Time taken = 252 ms
+Current Map size = 1222
+Previous Map size = 1409
+Evaluation func call Count = 1050
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:40] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:40] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:40] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove c7g2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 3786
+Found searches = 193
+Found searches in old map = 67
+Time taken = 242 ms
+Current Map size = 1135
+Previous Map size = 1222
+Evaluation func call Count = 1072
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:40] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:40] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:40] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g2f2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 3773
+Found searches = 171
+Found searches in old map = 49
+Time taken = 213 ms
+Current Map size = 1376
+Previous Map size = 1135
+Evaluation func call Count = 1157
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:40] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:40] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:40] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f2g2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 3830
+Found searches = 135
+Found searches in old map = 95
+Time taken = 208 ms
+Current Map size = 1241
+Previous Map size = 1376
+Evaluation func call Count = 973
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:41] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:41] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:41] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g2f2
+
+In method on_position
+In method on_go
+---------------------------------------------------------------------------------------------
+Total searches = 129
+Found searches = 1
+Found searches in old map = 23
+Time taken = 7 ms
+Current Map size = 95
+Previous Map size = 1241
+Evaluation func call Count = 25
+---------------------------------------------------------------------------------------------
+[2023-11-16 21:44:41] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-16 21:44:41] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-16 21:44:41] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f2g2
+

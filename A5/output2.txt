@@ -1,0 +1,641 @@
+This reports the time taken with a common transpotition table across all moves.
+The transposition table has custom key of 2 long long int.
+
+
+
+[2023-11-09 22:36:40] [connect] WebSocket Connection [::1]:56508 v13 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" / 101
+In method on_uci
+[2023-11-09 22:36:40] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 5 payload bytes
+[2023-11-09 22:36:40] [frame_header] Header Bytes: 
+[0] (2) 81 05 
+
+[2023-11-09 22:36:40] [frame_payload] Payload Bytes: 
+[0] (5) [1] uciok
+
+In method on_ucinewgame
+[2023-11-09 22:36:41] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 9 payload bytes
+[2023-11-09 22:36:41] [frame_header] Header Bytes: 
+[0] (2) 81 09 
+
+[2023-11-09 22:36:41] [frame_payload] Payload Bytes: 
+[0] (9) [1] newgameok
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 432 ms
+Num of pawn encodings = 82
+Total num of entries = 306
+-------------------------------------
+[2023-11-09 22:36:41] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:41] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:41] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e7f6
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 414 ms
+Num of pawn encodings = 127
+Total num of entries = 563
+-------------------------------------
+[2023-11-09 22:36:42] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:42] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:42] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f6g5
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 758 ms
+Num of pawn encodings = 176
+Total num of entries = 906
+-------------------------------------
+[2023-11-09 22:36:43] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:43] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:43] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6f5
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 611 ms
+Num of pawn encodings = 213
+Total num of entries = 1145
+-------------------------------------
+[2023-11-09 22:36:43] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:43] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:43] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f5f4
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 598 ms
+Num of pawn encodings = 243
+Total num of entries = 1420
+-------------------------------------
+[2023-11-09 22:36:44] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:44] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:44] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f4f3
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 627 ms
+Num of pawn encodings = 296
+Total num of entries = 1876
+-------------------------------------
+[2023-11-09 22:36:45] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:45] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:45] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f3f2
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 603 ms
+Num of pawn encodings = 302
+Total num of entries = 2313
+-------------------------------------
+[2023-11-09 22:36:45] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:45] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:45] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f2e2
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 397 ms
+Num of pawn encodings = 321
+Total num of entries = 2508
+-------------------------------------
+[2023-11-09 22:36:46] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:46] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:46] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g5g4
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 247 ms
+Num of pawn encodings = 332
+Total num of entries = 3046
+-------------------------------------
+[2023-11-09 22:36:46] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:46] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:46] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 407 ms
+Num of pawn encodings = 332
+Total num of entries = 3967
+-------------------------------------
+[2023-11-09 22:36:46] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:46] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:46] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove c7f7
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 630 ms
+Num of pawn encodings = 332
+Total num of entries = 3664
+-------------------------------------
+[2023-11-09 22:36:47] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:47] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:47] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove g4f3
+
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 848 ms
+Num of pawn encodings = 339
+Total num of entries = 5106
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove f7g2
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 204 ms
+Num of pawn encodings = 340
+Total num of entries = 5453
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 194 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:48] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:48] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:48] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove e6d7
+
+In method on_quit
+In method on_position
+In method on_go
+-------------------------------------
+Time taken in search = 0 ms
+Num of pawn encodings = 340
+Total num of entries = 5757
+-------------------------------------
+In method on_quit
+[2023-11-09 22:36:49] [frame_header] Dispatching write containing 1 message(s) containing 2 header bytes and 13 payload bytes
+[2023-11-09 22:36:49] [frame_header] Header Bytes: 
+[0] (2) 81 0D 
+
+[2023-11-09 22:36:49] [frame_payload] Payload Bytes: 
+[0] (13) [1] bestmove d7e6
+
