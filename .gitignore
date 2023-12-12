@@ -1,4 +1,4 @@
 .vscode
-*.txt
-*.out
-*.cpp
+./A5/*.txt
+./A5/*.out
+./A5/*.cpp
