@@ -1,4 +1,4 @@
-# COL761
+# COL333
 Artificial Intelligence Course Repository, 7th Semester 2023-24, IITD 
 
 
