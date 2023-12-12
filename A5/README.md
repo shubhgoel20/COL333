@@ -1,3 +1,9 @@
+- [Assignment PDF](./A5.pdf)
+- [Agent Implementation Script](./src/engine.cpp)
+- [Include Header File for Agent Implementation](./src/engine.hpp)
+- [Makefile](./Makefile)
+
+
 # Starter Code Overview
 
 Rollerball's GUI is implemented in JavaScript, and the core engine is written in C++. A similar interface is used as Assignment2. Note that *for this assignment, we are only accepting solutions in C++*.
